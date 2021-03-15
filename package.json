@@ -1,0 +1,9 @@
+{
+  "name": "@burketyler/ts-inejction",
+  "version": "1.0.0",
+  "description": "Dependency injection framework for Typescript and Javascript projects.",
+  "main": "index.js",
+  "repository": "https://github.com/burketyler/ts-injection",
+  "author": "Tyler Burke",
+  "license": "MIT"
+}
