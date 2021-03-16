@@ -1,5 +1,5 @@
-import { META_TOKEN } from "./di.model";
 import { useInjectionContext } from "./useInjectionContext";
+import { META_TOKEN } from "../domain/metaAttribs.const";
 
 const { injectionCtx } = useInjectionContext();
 

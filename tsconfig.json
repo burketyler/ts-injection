@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": ".build",
+    "moduleResolution": "node",
+    "declaration": true,
+    "noErrorTruncation": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    //"sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2017",
+    "module": "commonjs",
+    "jsx": "react",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "types": ["node"]
+  },
+  "exclude": [
+    "node_modules",
+    ".build"
+  ]
+}

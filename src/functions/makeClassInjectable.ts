@@ -1,6 +1,6 @@
-import { META_PARAMS, META_TOKEN } from "./di.model";
 import { useInjectionContext } from "./useInjectionContext";
 import { useDebugger } from "./useDebugger";
+import { META_PARAMS, META_TOKEN } from "../domain/metaAttribs.const";
 
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Injectable");

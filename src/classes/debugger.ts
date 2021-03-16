@@ -29,7 +29,7 @@ export class Debugger {
     if (debugClasses) {
       logger.isDebugMode = debugClasses
         .split(",")
-        .some(tar => tar === className);
+        .some((tar) => tar === className);
     } else {
       logger.isDebugMode = false;
     }

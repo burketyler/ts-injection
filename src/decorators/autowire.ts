@@ -6,7 +6,7 @@ import { useDebugger } from "../functions/useDebugger";
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Inject");
 
-export function Inject(token: string) {
+export function Autowire(token: string) {
   return (classCtor: any, member: string) => {
     logger.debug(
       `Attempting to inject ${token} into ${classCtor.constructor.name}.${member}.`

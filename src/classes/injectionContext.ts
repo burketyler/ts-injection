@@ -1,17 +1,14 @@
-import { arrayOverwrite } from "./functions/arrayOverwrite";
 import { Debugger } from "./debugger";
-import {
-  AutoWireRule,
-  InjectableItem,
-  InjectableType,
-  META_TYPE,
-} from "./di.model";
+import { AutoWireRuleModel } from "../domain/model/autoWireRule.model";
+import { InjectableType } from "../domain/enum/injectableType.enum";
+import { InjectableItemModel } from "../domain/model/injectableItem.model";
+import { META_TYPE } from "../domain/metaAttribs.const";
 
 export class InjectionContext {
   private static readonly instance = new InjectionContext();
   private tokenIndex: number = 0;
-  private items: InjectableItem<any>[] = [];
-  private autoWires: AutoWireRule[] = [];
+  private items: InjectableItemModel<any>[] = [];
+  private autoWires: AutoWireRuleModel[] = [];
   private logger: Debugger;
 
   constructor() {
@@ -23,10 +20,9 @@ export class InjectionContext {
   }
 
   public registerWithToken(injectable: any, token: string): void {
-    arrayOverwrite(
+    this.overWriteItem(
       this.findItemByToken(token),
-      InjectionContext.buildItem(token, injectable),
-      this.items
+      InjectionContext.buildItem(token, injectable)
     );
     this.logger.debug(`Injectable with token ${token} registered.`);
   }
@@ -60,11 +56,11 @@ export class InjectionContext {
       });
   }
 
-  public findItemByToken(token: string): InjectableItem<any> | undefined {
+  public findItemByToken(token: string): InjectableItemModel<any> | undefined {
     return this.items.find((inj) => inj.token === token);
   }
 
-  public addAutoWire(rule: AutoWireRule): void {
+  public addAutoWire(rule: AutoWireRuleModel): void {
     this.autoWires.push(rule);
   }
 
@@ -78,14 +74,14 @@ export class InjectionContext {
     });
   }
 
-  private static buildItem<T>(token: string, value: T): InjectableItem<T> {
+  private static buildItem<T>(token: string, value: T): InjectableItemModel<T> {
     return {
       token,
       value,
     };
   }
 
-  private addItem(item: InjectableItem<any>): void {
+  private addItem(item: InjectableItemModel<any>): void {
     this.items.push(item);
   }
 
@@ -98,14 +94,23 @@ export class InjectionContext {
     this.getAutoWireRulesForToken(token).forEach(this.executeAutoWireRule);
   }
 
-  private getAutoWireRulesForToken(token: string): AutoWireRule[] {
+  private getAutoWireRulesForToken(token: string): AutoWireRuleModel[] {
     return this.autoWires.filter((rule) => rule.token === token) || [];
   }
 
-  private executeAutoWireRule(cb: AutoWireRule): void {
+  private executeAutoWireRule(cb: AutoWireRuleModel): void {
     this.logger.debug(
       `Injecting ${cb.token} into ${cb.class.constructor.name}.${cb.member}.`
     );
     cb.class[cb.member] = this.retrieveByToken(cb.token);
+  }
+
+  private overWriteItem(item: any, newItem: any): void {
+    const indexOf = this.items.indexOf(item);
+    if (indexOf !== -1) {
+      this.items[indexOf] = newItem;
+    } else {
+      this.items.push(newItem);
+    }
   }
 }

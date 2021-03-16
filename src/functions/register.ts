@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import { META_TYPE } from "./di.model";
 import { useInjectionContext } from "./useInjectionContext";
+import { META_TYPE } from "../domain/metaAttribs.const";
 
 const { injectionCtx } = useInjectionContext();
 
