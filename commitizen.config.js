@@ -51,7 +51,6 @@ const types = [
 ];
 
 module.exports = {
-  scopes: ["ts-injection"],
   types,
   allowCustomScopes: false,
   allowBreakingChanges: ["feat"],
