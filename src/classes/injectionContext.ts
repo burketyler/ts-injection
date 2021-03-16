@@ -1,6 +1,5 @@
 import { Debugger } from "./debugger";
 import { AutoWireRuleModel } from "../domain/model/autoWireRule.model";
-import { InjectableType } from "../domain/enum/injectableType.enum";
 import { InjectableItemModel } from "../domain/model/injectableItem.model";
 import { META_TYPE } from "../domain/metaAttribs.const";
 
@@ -48,7 +47,7 @@ export class InjectionContext {
     }
   }
 
-  public queryByType(type: InjectableType): any[] {
+  public queryByType(type: string): any[] {
     return this.items
       .map((item) => item.value)
       .filter((item) => {
