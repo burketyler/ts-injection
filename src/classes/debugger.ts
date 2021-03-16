@@ -14,7 +14,7 @@ export class Debugger {
     return logger;
   }
 
-  public debug(msg: string, object?: any) {
+  public debug(msg: string, object?: any): void {
     if (this.isDebugMode) {
       if (object) {
         console.debug(msg, object);
@@ -24,7 +24,7 @@ export class Debugger {
     }
   }
 
-  private static setDebugMode(logger: Debugger, className: string) {
+  private static setDebugMode(logger: Debugger, className: string): void {
     const debugClasses: string = process.env.DEBUG_CLASSES;
     if (debugClasses) {
       logger.isDebugMode = debugClasses

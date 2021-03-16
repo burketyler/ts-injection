@@ -15,7 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    //"sourceMap": true,
+    "sourceMap": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2017",

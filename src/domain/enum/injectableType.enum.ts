@@ -1,4 +1,4 @@
 export enum InjectableType {
-    CLASS = "CLASS",
-    OBJECT = "OBJECT",
+  CLASS = "CLASS",
+  OBJECT = "OBJECT",
 }

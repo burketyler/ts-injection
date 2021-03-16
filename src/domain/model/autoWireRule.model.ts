@@ -1,5 +1,5 @@
 export interface AutoWireRuleModel {
-    class: any;
-    member: string;
-    token: string;
+  class: any;
+  member: string;
+  token: string;
 }

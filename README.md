@@ -20,7 +20,7 @@ class based architecture. If you have a functional code based this probably won'
 
 or
 
-`yarn install ts-injection`
+`yarn add ts-injection`
 
 ### Defining an injectable
 

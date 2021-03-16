@@ -15,7 +15,7 @@ export class InjectionContext {
     this.logger = Debugger.getInstance("InjectionContext");
   }
 
-  public static getInstance() {
+  public static getInstance(): InjectionContext {
     return this.instance;
   }
 
