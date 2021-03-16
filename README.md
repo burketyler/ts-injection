@@ -14,7 +14,9 @@ this documentation.
 Annotations can only be placed on javascript classes, as such `ts-injection` is best suited for projects that have a
 class based architecture. If you have a functional code based this probably won't be suited for you.
 
-## Getting started
+## Setup
+
+### Install
 
 `npm install ts-injection`
 
@@ -22,6 +24,23 @@ or
 
 `yarn add ts-injection`
 
+### Requirements
+If using Typescript, make sure your tsconfig.json contains
+```json
+{
+  "experimentalDecorators": true,
+  "emitDecoratorMetadata": true
+}
+```
+Install [reflect-metadata](https://www.npmjs.com/package/reflect-metadata).
+At the entrypoint to your application, include:
+```typescript
+import "reflect-metadata";
+```
+
+Your runtime must support `Symbols`.
+
+##Getting started
 ### Defining an injectable
 
 #### Classes
