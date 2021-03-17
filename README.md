@@ -15,7 +15,6 @@ Annotations can only be placed on javascript classes, as such `ts-injection` is 
 class based architecture. If you have a functional code based this probably won't be suited for you.
 
 ## Setup
-
 ### Install
 
 `npm install ts-injection`
@@ -25,7 +24,7 @@ or
 `yarn add ts-injection`
 
 ### Requirements
-If using Typescript, make sure your tsconfig.json contains
+Make sure your tsconfig.json contains
 ```json
 {
   "experimentalDecorators": true,
@@ -40,11 +39,10 @@ import "reflect-metadata";
 
 Your runtime must support `Symbols`.
 
-##Getting started
+## Getting started
 ### Defining an injectable
 
 #### Classes
-
 Use the `@Injectable` annotation to let the framework know that you intend for this class to be handled by the injection
 context.
 
@@ -65,7 +63,7 @@ export class MyService {
 }
 ```
 
-#### Named injectable
+#### Named injectables
 
 You can make any other variable injectable using the `register()`method. You will need to specify a unique token name to
 identify the value.
@@ -83,38 +81,39 @@ register<ConfigObject>(myObject, "TOKEN_CONFIG");
 ```
 
 ### Injecting dependencies
-
 #### Constructor injection
 
 Any constructor arguments provided to an `@Injectable` class will be automatically resolved from the injection context.
+You can also specify a named injectable using the `@Autowire` annotation.
 
 ```typescript
 @Injectable
 export class App {
-    constructor(private service: MyService) {
+    constructor(private service: MyService, @Autowire("TOKEN_CONFIG") private config: ConfigObject) {
         this.service.test();
         // Outputs: Injection context test from MyService.
+        console.log(this.config);
+        // Output: { config1: "123" }
     }
 }
 ```
 
 #### Field injection
-
-You can inject a named injectable into a class member by using the `@Autowire`
+You can inject a named injectable or an injectable class into a class member by using the `@Autowire`
 annotation.
 
 ```typescript
 @Injectable
 export class App {
+    @Autowire(MyService)
+    private service: MyService;
+
     @Autowire("TOKEN_CONFIG")
     private config: ConfigObject;
 
-    constructor(private service: MyService) {
+    constructor() {
        this.service.test();
        // Outputs: Injection context test from MyService.
-    }
-
-    public printConfig() {
         console.log(this.config);
         // Output: { config1: "123" }
     }
@@ -139,8 +138,8 @@ const app = resolve<App>(App);
 ## Caveats
 ### Injectable constructor arguments
 Because it's managed by the injection context, a class marked as `@Injectable`
-can ***only*** define constructor arguments that are other
-Injectable classes. Never construct `App` using `new`, always use `resolve()`.
+can ***only*** define constructor arguments that are injectables. Never construct
+`App` using `new`, always use `resolve()`.
 
 This will results in an error:
 
@@ -179,28 +178,6 @@ export class App {
 }
 ```
 
-### Field injection and class constructors
-Because a class member can only be set after a class has been instantiated, a named injectable cannot be
-accessed inside a class constructor.
-
-```typescript
-@Injectable
-export class App {
-    @Autowire("TOKEN_CONFIG")
-    private config: ConfigObject;
-
-    constructor(private service: MyService) {
-        console.log(this.config.config1);
-        // This will error, config is undefined at this point
-    }
-
-    public test() {
-        console.log(this.config.config1);
-        // Output: 123
-    }
-}
-```
-
 ### Register before resolve
 Any named injectables must be registered before your entry point class is resolved.
 
@@ -216,9 +193,16 @@ export class App {
 
 // This works
 register({test: 123}, "TOKEN");
-let app = resolve<App>(App);
+const app = resolve<App>(App);
 
 // This throws
 const app = resolve<App>(App);
 register({test: 123}, "TOKEN");
 ```
+
+### Webpack
+This library has been tested pretty thoroughly with Webpack 5, and it works great. Just make
+sure that your setup uses one version of `ts-injection` per bundle file. Basically requiring the
+module twice will create two different injection contexts, so you won't be able to access the same
+instances. I'll need to look into how I can change this behaviour to check if an in-memory context
+exists that we can pull from.
