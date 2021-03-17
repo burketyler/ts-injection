@@ -1,6 +1,6 @@
 {
   "name": "ts-injection",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Dependency injection framework for Typescript/Javascript NodeJS applications.",
   "main": ".build/index.js",
   "types": ".build/index.d.ts",
