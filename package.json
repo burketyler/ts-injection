@@ -1,13 +1,15 @@
 {
   "name": "ts-injection",
   "version": "1.0.3",
-  "description": "Dependency injection framework for Typescript and Javascript projects.",
+  "description": "Dependency injection framework for Typescript/Javascript NodeJS applications.",
   "main": ".build/index.js",
   "types": ".build/index.d.ts",
   "repository": "https://github.com/burketyler/ts-injection",
   "author": "Tyler Burke",
   "license": "MIT",
-  "files": [".build"],
+  "files": [
+    ".build"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -20,11 +22,18 @@
     "test": "jest",
     "cm": "git-cz"
   },
-  "keywords": ["typescript", "di", "dependency injection", "injection", "nodejs"],
+  "keywords": [
+    "typescript",
+    "di",
+    "dependency injection",
+    "injection",
+    "nodejs"
+  ],
   "dependencies": {
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.20",
     "@types/node": "^14.14.35",
     "commitizen": "^4.2.3",
     "commitlint": "^12.0.1",
