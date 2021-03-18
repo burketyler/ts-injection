@@ -1,3 +1,4 @@
+export * from "./src/decorators/env";
 export * from "./src/decorators/injectable";
 export * from "./src/decorators/autowire";
 export * from "./src/domain/metaAttribs.const";
