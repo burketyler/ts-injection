@@ -38,7 +38,13 @@ function addClassToInjectionCtx<T extends new (...args: any[]) => {}>(
   classCtor: T,
   resolvedDeps: any[]
 ): string {
-  const token: string = injectionCtx.register(new classCtor(...resolvedDeps));
+  let instance;
+  try {
+    instance = new classCtor(...resolvedDeps);
+  } catch (e) {
+    throw new Error(`Error calling class constructor: ${e.message}.`);
+  }
+  const token: string = injectionCtx.register(instance);
   Reflect.defineMetadata(META_TOKEN, token, classCtor);
   return token;
 }
