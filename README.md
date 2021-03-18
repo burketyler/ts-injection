@@ -14,8 +14,28 @@ this documentation.
 Annotations can only be placed on javascript classes, as such `ts-injection` is best suited for projects that have a
 class based architecture. If you have a functional code based this probably won't be suited for you.
 
-## Setup
-### Install
+# Table of Contents
+<!--ts-->
+   * [Setup](#setup)
+      * [Install](#install)
+      * [Requirements](#requirements)
+   * [Getting started](#getting-started)
+      * [Defining an injectable](#defining-an-injectable)
+         * [Classes](#classes)
+         * [Named injectables](#named-injectables)
+      * [Injecting dependencies](#injecting-dependencies)
+         * [Constructor injection](#constructor-injection)
+         * [Field injection](#field-injection)
+      * [Injection entry point](#injection-entry-point)
+   * [Caveats](#caveats)
+      * [Injectable constructor arguments](#injectable-constructor-arguments)
+      * [Circular dependencies](#circular-dependencies)
+      * [Register before resolve](#register-before-resolve)
+      * [Webpack](#webpack)
+<!--te-->
+
+# Setup
+## Install
 
 `npm install ts-injection`
 
@@ -23,7 +43,7 @@ or
 
 `yarn add ts-injection`
 
-### Requirements
+## Requirements
 Make sure your tsconfig.json contains
 ```json
 {
@@ -39,10 +59,10 @@ import "reflect-metadata";
 
 Your runtime must support `Symbols`.
 
-## Getting started
-### Defining an injectable
+# Getting started
+## Defining an injectable
 
-#### Classes
+### Classes
 Use the `@Injectable` annotation to let the framework know that you intend for this class to be handled by the injection
 context.
 
@@ -63,7 +83,7 @@ export class MyService {
 }
 ```
 
-#### Named injectables
+### Named injectables
 
 You can make any other variable injectable using the `register()`method. You will need to specify a unique token name to
 identify the value.
@@ -80,8 +100,8 @@ const myObject = {
 register<ConfigObject>(myObject, "TOKEN_CONFIG");
 ```
 
-### Injecting dependencies
-#### Constructor injection
+## Injecting dependencies
+### Constructor injection
 
 Any constructor arguments provided to an `@Injectable` class will be automatically resolved from the injection context.
 You can also specify a named injectable using the `@Autowire` annotation.
@@ -98,7 +118,7 @@ export class App {
 }
 ```
 
-#### Field injection
+### Field injection
 You can inject a named injectable or an injectable class into a class member by using the `@Autowire`
 annotation.
 
@@ -120,7 +140,7 @@ export class App {
 }
 ```
 
-### Injection entry point
+## Injection entry point
 The framework needs to know where your application begins. Use the `resolve()` method to get an instance
 of your entry point class from the injection context.
 
@@ -135,8 +155,8 @@ export class App {
 const app = resolve<App>(App);
 ```
 
-## Caveats
-### Injectable constructor arguments
+# Caveats
+## Injectable constructor arguments
 Because it's managed by the injection context, a class marked as `@Injectable`
 can ***only*** define constructor arguments that are injectables. Never construct
 `App` using `new`, always use `resolve()`.
@@ -158,7 +178,7 @@ export class App {
 resolve<App>(app);
 ```
 
-### Circular dependencies
+## Circular dependencies
 To automatically resolve dependencies, at the point of calling `resolve()`, `ts-injectable` will
 traverse the dependency tree until it finds a class that it can instantiate.
 
@@ -178,7 +198,7 @@ export class App {
 }
 ```
 
-### Register before resolve
+## Register before resolve
 Any named injectables must be registered before your entry point class is resolved.
 
 ```typescript
@@ -200,7 +220,7 @@ const app = resolve<App>(App);
 register({test: 123}, "TOKEN");
 ```
 
-### Webpack
+## Webpack
 This library has been tested pretty thoroughly with Webpack 5, and it works great. Just make
 sure that your setup uses one version of `ts-injection` per bundle file. Basically requiring the
 module twice will create two different injection contexts, so you won't be able to access the same
