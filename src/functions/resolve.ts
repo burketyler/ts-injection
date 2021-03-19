@@ -1,9 +1,10 @@
 import { useInjectionContext } from "./useInjectionContext";
 import { META_TOKEN } from "../domain/metaAttribs.const";
+import { Newable } from "../domain/model/newable.model";
 
 const { injectionCtx } = useInjectionContext();
 
-export function resolve<T>(injectable: new (...args: any[]) => any): T {
+export function resolve<T>(injectable: Newable): T {
   const token: string = Reflect.getMetadata(META_TOKEN, injectable);
   if (!token) {
     throw new Error(

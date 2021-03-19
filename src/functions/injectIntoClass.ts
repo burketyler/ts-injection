@@ -1,7 +1,7 @@
 export function injectIntoClass(
-  classCtor: any,
+  classOrClassCtor: any,
   member: string,
   injectable: any
 ): void {
-  classCtor[member] = injectable;
+  classOrClassCtor[member] = injectable;
 }

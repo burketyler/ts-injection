@@ -27,11 +27,41 @@ class based architecture. If you have a functional code based this probably won'
          * [Constructor injection](#constructor-injection)
          * [Field injection](#field-injection)
       * [Injection entry point](#injection-entry-point)
+   * [API reference](#api-reference)
+      * [Decorators](#decorators)
+         * [@Injectable](#injectable)
+         * [@Autowire(tokenOrClass: string | Newable)](#autowiretokenorclass-string--newable)
+         * [@Env&lt;T&gt;(varName: string, mapper?: (val: string) =&gt; T)](#envtvarname-string-mapper-val-string--t)
+      * [Functions](#functions)
+         * [resolve&lt;T&gt;(injectable: Newable): T](#resolvetinjectable-newable-t)
+         * [register&lt;T&gt;(injectable: T, token: string, type: string = "OBJECT"): void](#registertinjectable-t-token-string-type-string--object-void)
+      * [Extending ts-injection](#extending-ts-injection)
+         * [Domain](#domain)
+            * [InjectableItemModel](#injectableitemmodel)
+         * [Methods](#methods)
+            * [useInjectionContext(): { injectionCtx: InjectionContext }](#useinjectioncontext--injectionctx-injectioncontext-)
+            * [useDebugger(className: string): { logger: Debugger }](#usedebuggerclassname-string--logger-debugger-)
+            * [makeClassInjectable&lt;T extends Newable&gt;(classCtor: T) : string | undefined](#makeclassinjectablet-extends-newableclassctor-t--string--undefined)
+            * [injectIntoClass(classCtor: classOrClassCtor, member: string, injectable: any): void](#injectintoclassclassctor-classorclassctor-member-string-injectable-any-void)
+            * [InjectionContext](#injectioncontext)
+               * [register(injectable: any): string](#registerinjectable-any-string)
+               * [registerWithToken(injectable: any, token: string): void](#registerwithtokeninjectable-any-token-string-void)
+               * [isTokenInItems(token: string): boolean](#istokeninitemstoken-string-boolean)
+               * [retrieveByToken(token: string): any](#retrievebytokentoken-string-any)
+               * [addMetadataToItem(token: string, metaData: { [key: string]: any }): void](#addmetadatatoitemtoken-string-metadata--key-string-any--void)
+            * [queryByType(type: string): any[]](#querybytypetype-string-any)
+            * [findItemByToken(token: string): InjectableItemModel&lt;any&gt; | undefined](#finditembytokentoken-string-injectableitemmodelany--undefined)
+         * [Debugger](#debugger)
+            * [Example](#example)
+            * [Available internal debuggers](#available-internal-debuggers)
    * [Caveats](#caveats)
       * [Injectable constructor arguments](#injectable-constructor-arguments)
       * [Circular dependencies](#circular-dependencies)
       * [Register before resolve](#register-before-resolve)
       * [Webpack](#webpack)
+
+<!-- Added by: tburke, at: Fri Mar 19 12:23:51 AEDT 2021 -->
+
 <!--te-->
 
 # Setup
@@ -154,6 +184,150 @@ export class App {
 
 const app = resolve<App>(App);
 ```
+
+# API reference
+## Decorators
+### @Injectable
+Indicate to `ts-injection` that this annotated class should be handled by the injection context.
+
+### @Autowire(tokenOrClass: string | Newable)
+Inject the specified named injectable or class injectable by its reference.
+In the case of a named injectable, provide the token name:
+
+`@Autowire("TOKEN_NAME")`
+
+In the case of a class injectable, provide a reference to the class constructor:
+
+`@Autowire(MyClass)`
+
+### @Env\<T\>(varName: string, mapper?: (val: string) => T)
+Inject the specified environment variable from process.env into the annotated class member.
+If the env var is not of `type` `string` you can optionally pass a mapping function that
+will take in the string value and return the mapped value.
+
+## Functions
+### resolve\<T\>(injectable: Newable): T
+Get an instance of the provided injectable class from the injection context.
+Use this instead of calling `new` on injectable classes.
+Must supply a reference to the injectable class's constructor:
+
+`resolve<MyClass>(MyClass);`
+
+**Note**: providing a non-injectable class (not annotated with `@Injectable`)
+will throw an error.
+
+### register\<T\>(injectable: T, token: string, type: string = "OBJECT"): void
+Register any object or value into the injectable context with a specified token or 'name'.
+This injectable can then be accessed in classes with the `@Autowire` annotation.
+You can optionally specify a 'type' which can be useful when extending this framework.
+
+`register<{myVar: string}>({myVar: "test"}, "MY_TOKEN");`
+
+## Extending ts-injection
+I've exposed some internal APIs that can be used by anyone who wants to extend
+the functionality provided by `ts-injection`. An example of this is the [fastify-boot](https://github.com/burketyler/fastify-boot) library.
+
+### Domain
+
+#### InjectableItemModel
+```typescript
+export interface InjectableItemModel<T> {
+  token: string;
+  value: T;
+}
+```
+
+### Methods
+#### useInjectionContext(): { injectionCtx: InjectionContext }
+Obtain the instance of the `InjectionContext` class.
+Read more about this in [InjectionContext](#injection-context).
+
+#### useDebugger(className: string): { logger: Debugger }
+Obtain an instance of the `Debugger` class for the specified class.\
+Read more about this in [Debugger](#debugger).
+
+#### makeClassInjectable\<T extends Newable\>(classCtor: T) : string | undefined
+The internal API that `@Injectable` invokes to instantiate the provided class and add
+the instance to the injection context. Input must be a class constructor. The return value
+is the token reference to the injectable, or undefined
+if it detects the classCtor is actually for a primitive type.
+
+#### injectIntoClass(classCtor: classOrClassCtor, member: string, injectable: any): void
+A simple helper method that will inject the provided instance or value (injectable) into the class (classOrClassCtor) member/field (member).
+
+#### InjectionContext
+The class responsible for managing the injection context that `ts-injection` uses.
+
+##### register(injectable: any): string
+Register an injectable class object or value into the injection context.
+Returns an auto-generated token reference to the injectable.
+
+##### registerWithToken(injectable: any, token: string): void
+Register an injectable class object or value into the injection context with a specific token.
+If the token already exists in the context, it will replace the existing item.
+
+##### isTokenInItems(token: string): boolean
+Check if a given injectable exists in the injectable context but token reference.
+
+##### retrieveByToken(token: string): any
+Retrieve an injectable by its token reference, or throw an error if the token doesn't exist.
+
+##### addMetadataToItem(token: string, metaData: { [key: string]: any }): void
+Add the specified metaData keys to an injectable instance based on its token reference.\
+E.g:
+
+```typescript
+  const token = makeClassInjectable(classCtor);
+  injectionCtx.addMetadataToItem(token, {
+    [META_TYPE]: "MY_TYPE",
+  });
+```
+
+#### queryByType(type: string): any[]
+Retrieve an array of injectables that match the provided type.\
+Type is defined by the string value added to the injectable's metaData key [META_TYPE](#meta_type).
+
+```typescript
+  const injectables = injectionCtx.queryByType("MY_TYPE");
+```
+
+#### findItemByToken(token: string): InjectableItemModel\<any\> | undefined
+Retrieve an injectable item object [InjectableItem](#injectableitemmodel) by its token reference value.
+Doesn't throw if it can't be found, will just return undefined.
+
+### Debugger
+DI in Typescript/Javascript is very dependent on the order files are loaded, and the flow for using
+decorators can be quite complex. Understanding what's happening under the hood can be very useful when debugging issues.
+For my own use internally I've created a simple debugger component
+that can be activated via adding environment variables.
+
+The `Debugger` class will listen to process.env.DEBUG_CLASSES, which it expects to be of type `string[]`.
+If the class you want to debug are present in the list, `Debugger` will write the debug logs to `console.debug`,
+if it's not then no logs are emitted.
+
+#### Example
+
+```typescript
+proces.env.DEBUG_CLASSES="MyFn"
+
+function myFn(): void {
+    const { logger } = useDebugger("MyFn");
+    logger.debug("Hello");
+    // Outputs Hello
+}
+
+function otherFn(): void {
+    const { logger } = useDebugger("OtherFn");
+    logger.debug("");
+    // No output
+}
+```
+
+#### Available internal debuggers
+- InjectionContext
+- Injectable
+- Autowire
+- Env
 
 # Caveats
 ## Injectable constructor arguments
