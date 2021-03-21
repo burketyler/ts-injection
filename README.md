@@ -42,17 +42,17 @@ class based architecture. If you have a functional code based this probably won'
          * [makeClassInjectable&lt;T extends Newable&gt;(classCtor: T) : string | undefined](#makeclassinjectablet-extends-newableclassctor-t--string--undefined)
          * [injectIntoClass(classCtor: classOrClassCtor, member: string, injectable: any): void](#injectintoclassclassctor-classorclassctor-member-string-injectable-any-void)
       * [Classes](#classes-1)
-      * [InjectionContext](#injectioncontext)
-         * [Domain](#domain)
-            * [InjectableItemModel](#injectableitemmodel)
-         * [Methods](#methods-1)
-            * [register(injectable: any): string](#registerinjectable-any-string)
-            * [registerWithToken(injectable: any, token: string): void](#registerwithtokeninjectable-any-token-string-void)
-            * [isTokenInItems(token: string): boolean](#istokeninitemstoken-string-boolean)
-            * [retrieveByToken(token: string): any](#retrievebytokentoken-string-any)
-            * [addMetadataToItem(token: string, metaData: { [key: string]: any }): void](#addmetadatatoitemtoken-string-metadata--key-string-any--void)
-         * [queryByType(type: string): any[]](#querybytypetype-string-any)
-         * [findItemByToken(token: string): InjectableItemModel&lt;any&gt; | undefined](#finditembytokentoken-string-injectableitemmodelany--undefined)
+          * [InjectionContext](#injectioncontext)
+             * [Domain](#domain)
+                * [InjectableItemModel](#injectableitemmodel)
+             * [Methods](#methods-1)
+                * [register(injectable: any): string](#registerinjectable-any-string)
+                * [registerWithToken(injectable: any, token: string): void](#registerwithtokeninjectable-any-token-string-void)
+                * [isTokenInItems(token: string): boolean](#istokeninitemstoken-string-boolean)
+                * [retrieveByToken(token: string): any](#retrievebytokentoken-string-any)
+                * [addMetadataToItem(token: string, metaData: { [key: string]: any }): void](#addmetadatatoitemtoken-string-metadata--key-string-any--void)
+             * [queryByType(type: string): any[]](#querybytypetype-string-any)
+             * [findItemByToken(token: string): InjectableItemModel&lt;any&gt; | undefined](#finditembytokentoken-string-injectableitemmodelany--undefined)
       * [Debugger](#debugger)
          * [Example](#example)
          * [Available internal debuggers](#available-internal-debuggers)
@@ -248,11 +248,11 @@ if it detects the classCtor is actually for a primitive type.
 A simple helper method that will inject the provided instance or value (injectable) into the class (classOrClassCtor) member/field (member).
 
 ## Classes
-## InjectionContext
+### InjectionContext
 The class responsible for managing the injection context that `ts-injection` uses.
 
-### Domain
-#### InjectableItemModel
+#### Domain
+##### InjectableItemModel
 ```typescript
 export interface InjectableItemModel<T> {
   token: string;
@@ -260,22 +260,22 @@ export interface InjectableItemModel<T> {
 }
 ```
 
-### Methods
-#### register(injectable: any): string
+#### Methods
+##### register(injectable: any): string
 Register an injectable class object or value into the injection context.
 Returns an auto-generated token reference to the injectable.
 
-#### registerWithToken(injectable: any, token: string): void
+##### registerWithToken(injectable: any, token: string): void
 Register an injectable class object or value into the injection context with a specific token.
 If the token already exists in the context, it will replace the existing item.
 
-#### isTokenInItems(token: string): boolean
+##### isTokenInItems(token: string): boolean
 Check if a given injectable exists in the injectable context but token reference.
 
-#### retrieveByToken(token: string): any
+##### retrieveByToken(token: string): any
 Retrieve an injectable by its token reference, or throw an error if the token doesn't exist.
 
-#### addMetadataToItem(token: string, metaData: { [key: string]: any }): void
+##### addMetadataToItem(token: string, metaData: { [key: string]: any }): void
 Add the specified metaData keys to an injectable instance based on its token reference.\
 E.g:
 
@@ -286,7 +286,7 @@ E.g:
   });
 ```
 
-### queryByType(type: string): any[]
+#### queryByType(type: string): any[]
 Retrieve an array of injectables that match the provided type.\
 Type is defined by the string value added to the injectable's metaData key [META_TYPE](#meta_type).
 
@@ -294,11 +294,11 @@ Type is defined by the string value added to the injectable's metaData key [META
   const injectables = injectionCtx.queryByType("MY_TYPE");
 ```
 
-### findItemByToken(token: string): InjectableItemModel\<any\> | undefined
+#### findItemByToken(token: string): InjectableItemModel\<any\> | undefined
 Retrieve an injectable item object [InjectableItem](#injectableitemmodel) by its token reference value.
 Doesn't throw if it can't be found, will just return undefined.
 
-## Debugger
+### Debugger
 DI in Typescript/Javascript is very dependent on the order files are loaded, and the flow for using
 decorators can be quite complex. Understanding what's happening under the hood can be very useful when debugging issues.
 For my own use internally I've created a simple debugger component
@@ -308,7 +308,7 @@ The `Debugger` class will listen to process.env.DEBUG_CLASSES, which it expects 
 If the class you want to debug are present in the list, `Debugger` will write the debug logs to `console.debug`,
 if it's not then no logs are emitted.
 
-### Example
+#### Example
 
 ```typescript
 proces.env.DEBUG_CLASSES="MyFn"
@@ -326,7 +326,7 @@ function otherFn(): void {
 }
 ```
 
-### Available internal debuggers
+#### Available internal debuggers
 - InjectionContext
 - Injectable
 - Autowire

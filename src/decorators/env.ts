@@ -3,9 +3,7 @@ import { Debugger } from "../classes/debugger";
 
 const logger: Debugger = Debugger.getInstance("Env");
 
-type MapperFn = <T>(val: string) => T;
-
-export function Env<T>(varName: string, mapper?: MapperFn): any {
+export function Env<T>(varName: string, mapper?: (val: string) => T): any {
   if (process && process.env) {
     return (classCtor: any, fieldName: string) => {
       logger.debug(
@@ -22,7 +20,7 @@ function injectVarIntoMember(
   classCtor: any,
   fieldName: string,
   envVar: string,
-  mapper?: MapperFn
+  mapper?: (val: string) => any
 ): void {
   if (envVar) {
     logger.debug(`Variable resolved to ${envVar}.`);
