@@ -1,7 +1,7 @@
 import { useInjectionContext } from "./useInjectionContext";
 import { useDebugger } from "./useDebugger";
 import {
-  INJ_PARAMS,
+  ParamList,
   META_PARAMS,
   META_TOKEN,
 } from "../domain/metaAttribs.const";
@@ -17,7 +17,9 @@ export function makeClassInjectable<T extends Newable>(
     logger.debug(`Making injectable instance of class ${classCtor.name}.`);
     const depList = getDependencyList(classCtor);
     if (!depList) {
-      logger.debug("Dependency is a primitive, skipping.");
+      logger.debug(
+        "Dependency is a primitive or has no constructor, skipping."
+      );
       return undefined;
     }
     return addClassToInjectionCtx(
@@ -74,8 +76,7 @@ function resolveDependency(classCtor: any, dep: any, index: number): any {
 
 function getDepToken(classCtor: any, dep: any, index: number): string {
   let depToken = Reflect.getMetadata(META_TOKEN, dep);
-  const injParamMap: { [key: string]: string } =
-    classCtor.prototype[INJ_PARAMS];
+  const injParamMap: { [key: string]: string } = classCtor.prototype[ParamList];
   if (!depToken) {
     if (!injParamMap) {
       throw new Error(

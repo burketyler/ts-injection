@@ -244,7 +244,7 @@ the instance to the injection context. Input must be a class constructor. The re
 is the token reference to the injectable, or undefined
 if it detects the classCtor is actually for a primitive type.
 
-### injectIntoClass(classCtor: classOrClassCtor, member: string, injectable: any): void
+### injectIntoClass(classCtor: any, member: string, injectable: any): void
 A simple helper method that will inject the provided instance or value (injectable) into the class (classOrClassCtor) member/field (member).
 
 ## Classes
@@ -270,7 +270,7 @@ Register an injectable class object or value into the injection context with a s
 If the token already exists in the context, it will replace the existing item.
 
 ##### isTokenInItems(token: string): boolean
-Check if a given injectable exists in the injectable context but token reference.
+Check if a given injectable exists in the injectable context by its token reference.
 
 ##### retrieveByToken(token: string): any
 Retrieve an injectable by its token reference, or throw an error if the token doesn't exist.
@@ -304,8 +304,9 @@ decorators can be quite complex. Understanding what's happening under the hood c
 For my own use internally I've created a simple debugger component
 that can be activated via adding environment variables.
 
-The `Debugger` class will listen to process.env.DEBUG_CLASSES, which it expects to be of type `string[]`.
-If the class you want to debug are present in the list, `Debugger` will write the debug logs to `console.debug`,
+The `Debugger` class will listen to process.env.DEBUG_CLASSES, which it expects to be a comma separated
+`string` of class names.
+If the class you want to debug is present in the list, `Debugger` will write the debug logs to `console.debug`,
 if it's not then no logs are emitted.
 
 #### Example

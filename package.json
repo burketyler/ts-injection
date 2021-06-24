@@ -1,6 +1,6 @@
 {
   "name": "ts-injection",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Dependency injection framework for Typescript/Javascript NodeJS applications.",
   "main": ".build/index.js",
   "types": ".build/index.d.ts",
@@ -18,7 +18,7 @@
     "build": "yarn clean && tsc",
     "prettier": "prettier --write \"**/*.ts\" --loglevel error",
     "tslint": "tslint -c ./tslint.json src/**/*.ts",
-    "release": "yarn prettier && yarn tslint && yarn build",
+    "release": "yarn prettier && yarn tslint && yarn build && yarn publish",
     "test": "jest",
     "cm": "git-cz"
   },
