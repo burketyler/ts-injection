@@ -5,7 +5,7 @@ import { PrimitiveType } from "../domain/model/primitiveType.model";
 
 const logger: Debugger = Debugger.getInstance("Env");
 
-export function Env<T>(varName: string, mapper?: (val: string) => T) {
+export function Env<T>(varName: string, mapper?: (val: string) => T): any {
   if (process && process.env) {
     return (classCtor: any, fieldName: string) => {
       const type = extractType(classCtor, fieldName);
