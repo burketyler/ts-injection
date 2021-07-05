@@ -15,6 +15,11 @@ export function makeClassInjectable<T extends Newable>(
 ): string | undefined {
   try {
     logger.debug(`Making injectable instance of class ${classCtor.name}.`);
+    const existingToken = Reflect.getMetadata(META_TOKEN, classCtor);
+    if (existingToken) {
+      logger.debug("Class already instantiated, returning existing instance.");
+      return injectionCtx.retrieveByToken(existingToken);
+    }
     const depList = getDependencyList(classCtor);
     if (!depList) {
       logger.debug(

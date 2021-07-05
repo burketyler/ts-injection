@@ -4,6 +4,7 @@ export * from "./src/decorators/autowire";
 export * from "./src/domain/metaAttribs.const";
 export * from "./src/domain/enum/injectableType.enum";
 export * from "./src/domain/model/newable.model";
+export * from "./src/domain/model/primitiveType.model";
 export * from "./src/functions/injectIntoClass";
 export * from "./src/functions/makeClassInjectable";
 export * from "./src/functions/resolve";

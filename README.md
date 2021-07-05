@@ -27,6 +27,7 @@ class based architecture. If you have a functional code based this probably won'
          * [Constructor injection](#constructor-injection)
          * [Field injection](#field-injection)
       * [Injection entry point](#injection-entry-point)
+      * [Environment variables](#environment-variables)
    * [API reference](#api-reference)
       * [Decorators](#decorators)
          * [@Injectable](#injectable)
@@ -187,6 +188,59 @@ export class App {
 const app = resolve<App>(App);
 ```
 
+## Environment variables
+You can inject environment variables into class members using the `@Env` annotation.
+The framework will use the `type` of the `class member` to infer how to parse the value.
+Supported types are: `string`, `boolean`, `object`, `number`.
+You can also optionally pass a mapping function that will take in the string value and
+return the mapped value.
+
+```typescript
+process.env.CFG_STR = "test";
+process.env.CFG_NUM = "123";
+process.env.CFG_BOOL = "true";
+process.env.CFG_OBJ = "{\"myObj\": \"hello\"}";
+
+type MyObj = { myObj: string };
+
+function mapObj(val: string): MyObj {
+    const obj = JSON.parse(val);
+    obj.newVal = 123;
+    return obj;
+}
+
+export class App {
+    @Env("CFG_STR")
+    private myString: string;
+    @Env("CFG_NUM")
+    private myNumber: number;
+    @Env("CFG_BOOL")
+    private myBool: boolean;
+    @Env("CFG_OBJ")
+    private myObj: MyObj;
+    @Env<MyObj>("CFG_OBJ", mapObj)
+    private myMappedObj: MyObj;
+    
+    constructor() {
+        console.log(this.myString);
+        // "test"
+        console.log(this.myNumber);
+        // 123
+        console.log(this.myBool);
+        // true
+        console.log(this.myObj);
+        // {
+        //  myObj: "hello"
+        // }
+        console.log(this.myMappedObj);
+        // {
+        //  myObj: "hello",
+        //  newVal: 123
+        // }
+    }
+}
+```
+
 # API reference
 ## Decorators
 ### @Injectable
@@ -204,8 +258,10 @@ In the case of a class injectable, provide a reference to the class constructor:
 
 ### @Env\<T\>(varName: string, mapper?: (val: string) => T)
 Inject the specified environment variable from process.env into the annotated class member.
-If the env var is not of `type` `string` you can optionally pass a mapping function that
-will take in the string value and return the mapped value.
+The `type` of the `class member` this annotation has been applied to is used to infer how
+to parse the value. Supported types are: `string`, `boolean`, `object`, `number`.
+You can also optionally pass a mapping function that will take in the string value and
+return the mapped value.
 
 ## Functions
 ### resolve\<T\>(injectable: Newable): T
