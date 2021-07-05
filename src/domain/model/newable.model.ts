@@ -1,1 +1,1 @@
-export type Newable = new (...args: any[]) => {};
+export type Newable = new (...args: any[]) => any;

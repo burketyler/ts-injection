@@ -2,7 +2,11 @@ import "reflect-metadata";
 import { injectIntoClass } from "../functions/injectIntoClass";
 import { useInjectionContext } from "../functions/useInjectionContext";
 import { useDebugger } from "../functions/useDebugger";
-import { INJ_PARAMS, META_TOKEN } from "../domain/metaAttribs.const";
+import {
+  AutoWireList,
+  ParamList,
+  META_TOKEN,
+} from "../domain/metaAttribs.const";
 import { Newable } from "../domain/model/newable.model";
 
 const { injectionCtx } = useInjectionContext();
@@ -37,7 +41,7 @@ function handleFieldInjection(
       injectionCtx.retrieveByToken(tokenOrClass)
     );
   } else {
-    addAutoWireCallback(classCtor, member, tokenOrClass);
+    addTokenToAutowireMaps(classCtor, member, tokenOrClass);
   }
 }
 
@@ -58,23 +62,20 @@ function addTokenToParamMap(
   token: string,
   index: number
 ): void {
-  classCtor[INJ_PARAMS] = classCtor[INJ_PARAMS] || {};
-  classCtor[INJ_PARAMS][index] = token;
+  classCtor[ParamList] = classCtor[ParamList] || {};
+  classCtor[ParamList][index] = token;
 }
 
-function addAutoWireCallback(
+function addTokenToAutowireMaps(
   classCtor: any,
   member: string,
   token: string
 ): void {
   logger.debug(
-    `Class isn't available yet, adding AutoWire callback for when it becomes available.`
+    "The injectable isn't registered yet, adding AutoWire rule to class for when it becomes available."
   );
-  injectionCtx.addAutoWire({
-    class: classCtor,
-    member,
-    token,
-  });
+  classCtor[AutoWireList] = classCtor[AutoWireList] || {};
+  classCtor[AutoWireList][member] = token;
 }
 
 function getClassToken(classCtor: new (...args: any[]) => {}): string {
