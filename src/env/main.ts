@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { Debugger } from "../classes/debugger";
-import extractType from "../functions/extractType";
-import { PrimitiveType } from "../domain/model/primitiveType.model";
+import { Debugger } from "../debugger";
+import { PrimitiveType } from "../types/primitive-type";
+import { extractType } from "./utils";
 
 const logger: Debugger = Debugger.getInstance("Env");
 

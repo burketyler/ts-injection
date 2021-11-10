@@ -1,11 +1,7 @@
-import { useInjectionContext } from "./useInjectionContext";
-import { useDebugger } from "./useDebugger";
-import {
-  ParamList,
-  META_PARAMS,
-  META_TOKEN,
-} from "../domain/metaAttribs.const";
-import { Newable } from "../domain/model/newable.model";
+import { ParamList, META_PARAMS, META_TOKEN } from "../constants";
+import { Newable } from "../types/newable";
+import { useInjectionContext } from "../utils/use-injection-context";
+import { useDebugger } from "../utils/use-debugger";
 
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Injectable");
@@ -41,7 +37,7 @@ function getDependencyList(target: any): any[] | undefined {
   return Reflect.getMetadata(META_PARAMS, target);
 }
 
-function addClassToInjectionCtx<T extends new (...args: any[]) => {}>(
+function addClassToInjectionCtx<T extends Newable>(
   classCtor: T,
   resolvedDeps: any[]
 ): string {

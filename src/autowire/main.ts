@@ -1,13 +1,9 @@
 import "reflect-metadata";
-import { injectIntoClass } from "../functions/injectIntoClass";
-import { useInjectionContext } from "../functions/useInjectionContext";
-import { useDebugger } from "../functions/useDebugger";
-import {
-  AutoWireList,
-  ParamList,
-  META_TOKEN,
-} from "../domain/metaAttribs.const";
-import { Newable } from "../domain/model/newable.model";
+import { injectIntoClass } from "../utils/inject-into-class";
+import { useInjectionContext } from "../utils/use-injection-context";
+import { useDebugger } from "../utils/use-debugger";
+import { AutoWireList, ParamList, META_TOKEN } from "../constants";
+import { Newable } from "../types/newable";
 
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Autowire");
@@ -78,7 +74,7 @@ function addTokenToAutowireMaps(
   classCtor[AutoWireList][member] = token;
 }
 
-function getClassToken(classCtor: new (...args: any[]) => {}): string {
+function getClassToken(classCtor: Newable): string {
   const token = Reflect.getMetadata(META_TOKEN, classCtor);
   if (token === undefined) {
     throw new Error("A class was provided but it has no token in metadata!");

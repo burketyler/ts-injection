@@ -2,8 +2,6 @@ export class Debugger {
   private static readonly loggers: { [key: string]: Debugger } = {};
   private isDebugMode: boolean;
 
-  private constructor() {}
-
   public static getInstance(className: string): Debugger {
     let logger: Debugger = Debugger.loggers[className];
     if (!logger) {

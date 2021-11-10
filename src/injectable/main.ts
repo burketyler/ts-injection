@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import { makeClassInjectable } from "../functions/makeClassInjectable";
-import { useDebugger } from "../functions/useDebugger";
-import { InjectableType } from "../domain/enum/injectableType.enum";
-import { META_TYPE } from "../domain/metaAttribs.const";
-import { Newable } from "../domain/model/newable.model";
+import { useDebugger } from "../utils/use-debugger";
+import { InjectableType } from "../types/injectable-type";
+import { META_TYPE } from "../constants";
+import { Newable } from "../types/newable";
+import { makeClassInjectable } from "./utils";
 
 const { logger } = useDebugger("Injectable");
 

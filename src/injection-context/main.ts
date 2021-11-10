@@ -1,15 +1,17 @@
-import { Debugger } from "./debugger";
-import { InjectableItemModel } from "../domain/model/injectableItem.model";
-import { AutoWireList, META_TYPE } from "../domain/metaAttribs.const";
-import { injectIntoClass } from "../functions/injectIntoClass";
+import { Debugger } from "../debugger";
+import { InjectableItem } from "../types/intejectable-item";
+import { AutoWireList, META_TYPE } from "../constants";
+import { injectIntoClass } from "../utils/inject-into-class";
 
 export class InjectionContext {
   private static readonly instance = new InjectionContext();
-  private tokenIndex: number = 0;
-  private items: InjectableItemModel<any>[] = [];
-  private logger: Debugger;
+  private readonly items: InjectableItem<any>[];
+  private readonly logger: Debugger;
+  private tokenIndex: number;
 
-  constructor() {
+  private constructor() {
+    this.tokenIndex = 0;
+    this.items = [];
     this.logger = Debugger.getInstance("InjectionContext");
   }
 
@@ -54,7 +56,7 @@ export class InjectionContext {
       });
   }
 
-  public findItemByToken(token: string): InjectableItemModel<any> | undefined {
+  public findItemByToken(token: string): InjectableItem<any> | undefined {
     return this.items.find((inj) => inj.token === token);
   }
 
@@ -68,14 +70,14 @@ export class InjectionContext {
     });
   }
 
-  private static buildItem<T>(token: string, value: T): InjectableItemModel<T> {
+  private static buildItem<T>(token: string, value: T): InjectableItem<T> {
     return {
       token,
       value,
     };
   }
 
-  private addItem(item: InjectableItemModel<any>): void {
+  private addItem(item: InjectableItem<any>): void {
     this.items.push(item);
   }
 

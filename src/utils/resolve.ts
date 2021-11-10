@@ -1,6 +1,6 @@
-import { useInjectionContext } from "./useInjectionContext";
-import { META_TOKEN } from "../domain/metaAttribs.const";
-import { Newable } from "../domain/model/newable.model";
+import { useInjectionContext } from "./use-injection-context";
+import { META_TOKEN } from "../constants";
+import { Newable } from "../types/newable";
 
 const { injectionCtx } = useInjectionContext();
 
