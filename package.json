@@ -38,8 +38,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "reflect-metadata": "0.1.13",
-    "tslib": "2.3.1"
+    "reflect-metadata": "0.1.13"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "16.0.0",
