@@ -1,0 +1,27 @@
+---
+title: ts-injection
+---
+
+# ts-injection
+
+`ts-injection` is an annotation based dependency injection framework written in Typescript for NodeJS apps. It enables building
+applications that have loosely coupled components, resulting in:
+
+- Easy to read code.
+- Reduction in boilerplate.
+- Enhanced developer experience.
+
+:::note
+
+Annotation vs Decorator: The correct term for the @ syntax in TypeScript/Javascript is a "decorator", in many other
+languages it's referred to as an "annotation". I prefer the term annotation, so that's how I'll be referring to them in
+this documentation.
+
+:::
+
+# Documentation
+
+- [Setup](/ts-injection/docs/setup)
+- [Usage](/ts-injection/docs/usage)
+- [API Reference](/ts-injection/docs/api-reference)
+- [Caveats](/ts-injection/docs/caveats)

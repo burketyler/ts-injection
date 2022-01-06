@@ -1,13 +1,46 @@
 {
-  "root": true,
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "ignorePatterns": ["*.md", "node_modules", ".build", "docs"],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "createDefaultProgram": true
+  },
+  "settings": {
+    "import/core-modules": ["aws-sdk", "aws-lambda"]
+  },
+  "plugins": ["@typescript-eslint", "prettier", "import"],
   "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "airbnb/base",
+    "airbnb-typescript/base",
+    "plugin:prettier/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
   ],
   "rules": {
-    "@typescript-eslint/no-explicit-any": "off"
+    "curly": "error",
+    "class-methods-use-this": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "import/prefer-default-export": "off",
+    "import/no-internal-modules": ["error", {
+      "allow": ["src/*"]
+    }],
+    "import/order": [
+      "error",
+      {
+        "alphabetize": {
+          "order": "asc"
+        },
+        "groups": [
+          ["object", "builtin", "external"],
+          ["internal", "parent"],
+          ["sibling", "index"]
+        ],
+        "newlines-between": "always"
+      }
+    ]
   }
 }

@@ -1,12 +1,9 @@
+import "reflect-metadata";
+
+export * from "./src/autowire";
+export * from "./src/debugger";
 export * from "./src/env";
 export * from "./src/injectable";
-export * from "./src/autowire";
-export * from "./src/constants";
-export * from "./src/types/injectable-type";
-export * from "./src/types/newable";
-export * from "./src/types/primitive-type";
-export * from "./src/utils/inject-into-class";
-export * from "./src/utils/resolve";
-export * from "./src/utils/register";
-export * from "./src/utils/use-debugger";
-export * from "./src/utils/use-injection-context";
+export * from "./src/injection-context";
+export * from "./src/throwable";
+export * from "./src/utils";

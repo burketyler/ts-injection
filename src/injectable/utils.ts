@@ -1,99 +1,142 @@
-import { ParamList, META_PARAMS, META_TOKEN } from "../constants";
-import { Newable } from "../types/newable";
-import { useInjectionContext } from "../utils/use-injection-context";
-import { useDebugger } from "../utils/use-debugger";
+import { PARAM_LIST, META_PARAMS, META_TOKEN } from "../constants";
+import { useDebugger } from "../debugger";
+import { useInjectionContext } from "../injection-context";
+import { fail, success, Throwable } from "../throwable";
+import { Newable, InjectionError } from "../types";
+
+import { InjectableParamMap } from "./types";
 
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Injectable");
 
-export function makeClassInjectable<T extends Newable>(
-  classCtor: T
-): string | undefined {
+export function makeClassInjectable<ClassType extends Newable>(
+  classCtor: ClassType
+): Throwable<InjectionError, string> {
   try {
     logger.debug(`Making injectable instance of class ${classCtor.name}.`);
+
     const existingToken = Reflect.getMetadata(META_TOKEN, classCtor);
+    const dependencyList = Reflect.getMetadata(META_PARAMS, classCtor);
+
     if (existingToken) {
       logger.debug("Class already instantiated, returning existing instance.");
-      return injectionCtx.retrieveByToken(existingToken);
+
+      const getItemResult = injectionCtx.getItemByToken(existingToken);
+
+      if (getItemResult.isSuccess()) {
+        return success(getItemResult.value().token);
+      }
+
+      throw getItemResult.value();
     }
-    const depList = getDependencyList(classCtor);
-    if (!depList) {
-      logger.debug(
-        "Dependency is a primitive or has no constructor, skipping."
-      );
-      return undefined;
+
+    if (!dependencyList) {
+      logger.debug("Dependency is a primitive or has no constructor.");
     }
-    return addClassToInjectionCtx(
-      classCtor,
-      processDependencies(classCtor, depList)
+
+    return success(
+      addClassToInjectionCtx(
+        classCtor,
+        processDependencies(classCtor, dependencyList ?? [])
+      )
     );
-  } catch (e) {
-    logger.debug(e);
-    throw new Error(`Unable to make injectable instance of ${classCtor.name}.`);
+  } catch (error) {
+    logger.debug(error);
+
+    return fail(
+      new InjectionError(
+        `Unable to make injectable instance of ${classCtor.name}.`
+      )
+    );
   }
 }
 
-function getDependencyList(target: any): any[] | undefined {
-  return Reflect.getMetadata(META_PARAMS, target);
-}
-
-function addClassToInjectionCtx<T extends Newable>(
-  classCtor: T,
+function addClassToInjectionCtx<ClassType extends Newable>(
+  ClassCtor: ClassType,
   resolvedDeps: any[]
 ): string {
   let instance;
+
   try {
-    instance = new classCtor(...resolvedDeps);
+    instance = new ClassCtor(...resolvedDeps);
   } catch (e) {
-    throw new Error(`Error calling class constructor: ${e.message}.`);
+    throw new InjectionError(`Error calling class constructor: ${e.message}.`);
   }
+
   const token: string = injectionCtx.register(instance);
-  Reflect.defineMetadata(META_TOKEN, token, classCtor);
+  Reflect.defineMetadata(META_TOKEN, token, ClassCtor);
+
   return token;
 }
 
-function processDependencies(classCtor: any, deps: any[]): any[] {
-  const resolved: any[] = [];
-  logger.debug(`${classCtor.name} has ${deps.length} dependencies.`);
-  deps.forEach((dep, index) => {
+function processDependencies(
+  classCtor: Newable,
+  dependencies: unknown[]
+): unknown[] {
+  logger.debug(`${classCtor.name} has ${dependencies.length} dependencies.`);
+
+  const resolved: unknown[] = [];
+
+  dependencies.forEach((dep, index) => {
     resolved.push(resolveDependency(classCtor, dep, index));
   });
+
   return resolved;
 }
 
-function resolveDependency(classCtor: any, dep: any, index: number): any {
+function resolveDependency(
+  classCtor: Newable,
+  dependency: unknown,
+  index: number
+): unknown {
   logger.debug(`Resolving dependency ${index + 1}.`);
-  checkIfDependencyDefined(dep);
-  const depToken = getDepToken(classCtor, dep, index);
-  const instantiatedClass = injectionCtx.findItemByToken(depToken).value;
-  if (instantiatedClass) {
-    logger.debug(`Already instantiated with token ${depToken}.`);
-    return instantiatedClass;
-  } else {
-    logger.debug("Not instantiated, see if we can instantiate it now.");
-    return makeClassInjectable(dep);
-  }
-}
 
-function getDepToken(classCtor: any, dep: any, index: number): string {
-  let depToken = Reflect.getMetadata(META_TOKEN, dep);
-  const injParamMap: { [key: string]: string } = classCtor.prototype[ParamList];
-  if (!depToken) {
-    if (!injParamMap) {
-      throw new Error(
-        "Unable to get token from metadata, can't find what to inject."
-      );
-    } else {
-      depToken = injParamMap[index];
-    }
-  }
-  return depToken;
-}
-
-function checkIfDependencyDefined(dep: any): void {
-  if (dep === undefined) {
-    throw new Error(
-      "Dependency is undefined, this is usually due to circular dependencies. Check to make sure your classes aren't injecting each other."
+  if (dependency === undefined) {
+    throw new InjectionError(
+      "Dependency is undefined, this is usually due to circular dependencies. Read docs for further information."
     );
   }
+
+  const getItemResult = injectionCtx.getItemByToken(
+    getTokenForDependency(classCtor, dependency, index)
+  );
+
+  if (getItemResult.isSuccess()) {
+    const { value: instantiatedClass, token } = getItemResult.value();
+
+    logger.debug(`Already instantiated with token ${token}.`);
+
+    return instantiatedClass;
+  }
+
+  logger.debug("Not instantiated, see if we can instantiate it now.");
+
+  const makeInjectableResult = makeClassInjectable(dependency as Newable);
+
+  if (makeInjectableResult.isSuccess()) {
+    return makeInjectableResult.value();
+  }
+
+  throw makeInjectableResult.value();
+}
+
+function getTokenForDependency(
+  classCtor: Newable,
+  dependency: unknown,
+  index: number
+): string {
+  const token = Reflect.getMetadata(META_TOKEN, dependency as Object);
+  const paramMap: InjectableParamMap = classCtor.prototype[PARAM_LIST];
+
+  if (token) {
+    return token;
+  }
+
+  if (!paramMap) {
+    throw new InjectionError(
+      "Unable to get token from metadata, can't find what to inject."
+    );
+  }
+
+  return paramMap[index];
 }

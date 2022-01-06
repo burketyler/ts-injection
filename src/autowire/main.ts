@@ -1,9 +1,11 @@
-import "reflect-metadata";
-import { injectIntoClass } from "../utils/inject-into-class";
-import { useInjectionContext } from "../utils/use-injection-context";
-import { useDebugger } from "../utils/use-debugger";
-import { AutoWireList, ParamList, META_TOKEN } from "../constants";
-import { Newable } from "../types/newable";
+/* eslint-disable no-param-reassign */
+
+import { AUTO_WIRE_LIST, PARAM_LIST, META_TOKEN } from "../constants";
+import { useDebugger } from "../debugger";
+import { useInjectionContext } from "../injection-context";
+import { Newable } from "../types";
+
+import { AutowireError } from "./types";
 
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Autowire");
@@ -20,64 +22,77 @@ export function Autowire(tokenOrClass: string | Newable): any {
 
 function handleFieldInjection(
   tokenOrClass: string | Newable,
-  classCtor: any,
+  classCtor: Newable,
   member: string
 ): void {
   logger.debug(
     `Attempting to inject ${tokenOrClass} into ${classCtor.constructor.name}.${member}.`
   );
+
   if (typeof tokenOrClass !== "string") {
     tokenOrClass = getClassToken(tokenOrClass);
   }
-  if (injectionCtx.isTokenInItems(tokenOrClass)) {
-    logger.debug(`Found injectable, inserting into class.`);
-    injectIntoClass(
-      classCtor,
-      member,
-      injectionCtx.retrieveByToken(tokenOrClass)
-    );
-  } else {
-    addTokenToAutowireMaps(classCtor, member, tokenOrClass);
-  }
+
+  injectionCtx
+    .getItemByToken(tokenOrClass)
+    .onSuccess(({ value }) => {
+      logger.debug(`Found injectable, inserting into class.`);
+
+      (classCtor as any)[member] = value;
+    })
+    .onError(() => {
+      addTokenToAutowireMaps(classCtor, member, tokenOrClass as string);
+    });
 }
 
 function handleParameterInjection(
   tokenOrClass: string | Newable,
-  classCtor: any,
+  classCtor: Newable,
   member: string,
   index: number
 ): void {
   if (typeof tokenOrClass !== "string") {
     tokenOrClass = getClassToken(tokenOrClass);
   }
+
   addTokenToParamMap(classCtor.prototype, tokenOrClass, index);
 }
 
 function addTokenToParamMap(
-  classCtor: any,
+  classCtor: Newable,
   token: string,
   index: number
 ): void {
-  classCtor[ParamList] = classCtor[ParamList] || {};
-  classCtor[ParamList][index] = token;
+  if (!(classCtor as any)[PARAM_LIST]) {
+    (classCtor as any)[PARAM_LIST] = {};
+  }
+
+  (classCtor as any)[PARAM_LIST][index] = token;
 }
 
 function addTokenToAutowireMaps(
-  classCtor: any,
+  classCtor: Newable,
   member: string,
   token: string
 ): void {
   logger.debug(
     "The injectable isn't registered yet, adding AutoWire rule to class for when it becomes available."
   );
-  classCtor[AutoWireList] = classCtor[AutoWireList] || {};
-  classCtor[AutoWireList][member] = token;
+
+  if (!(classCtor as any)[PARAM_LIST]) {
+    (classCtor as any)[PARAM_LIST] = {};
+  }
+
+  (classCtor as any)[AUTO_WIRE_LIST][member] = token;
 }
 
 function getClassToken(classCtor: Newable): string {
   const token = Reflect.getMetadata(META_TOKEN, classCtor);
+
   if (token === undefined) {
-    throw new Error("A class was provided but it has no token in metadata!");
+    throw new AutowireError(
+      "A newable constructor was provided but it has no token in metadata."
+    );
   } else {
     return token;
   }
