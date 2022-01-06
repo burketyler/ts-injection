@@ -4,7 +4,9 @@ import { InjectionError, Newable } from "../types";
 
 const { injectionCtx } = useInjectionContext();
 
-export function resolve<InjectableType>(injectable: Newable): InjectableType {
+export function resolve<InjectableType extends Newable>(
+  injectable: InjectableType
+): InstanceType<InjectableType> {
   const token: string = Reflect.getMetadata(META_TOKEN, injectable);
 
   if (!token) {
@@ -21,5 +23,5 @@ export function resolve<InjectableType>(injectable: Newable): InjectableType {
     );
   }
 
-  return getItemResult.value().value;
+  return getItemResult.value().value as InstanceType<InjectableType>;
 }
