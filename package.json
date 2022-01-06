@@ -34,13 +34,15 @@
     "test": "jest",
     "precommit": "yarn code:fix",
     "docs": "(cd docs && yarn start)",
-    "cm": "git-cz"
+    "cm": "git-cz",
+    "prepare": "husky install"
   },
   "dependencies": {
     "reflect-metadata": "0.1.13",
     "tslib": "2.3.1"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "16.0.0",
     "@semantic-release/git": "10.0.1",
     "@types/jest": "27.4.0",
     "@types/node": "17.0.8",
