@@ -105,12 +105,11 @@ Read more about this in [InjectionContext](/docs/api-reference#injectioncontext)
 
 ### makeClassInjectable
 
-`makeClassInjectable<ClassType extends Newable>(classCtor: ClassType) : Throwable<InjectionError, string>`
+`makeClassInjectable<ClassType extends Newable>(classCtor: ClassType) : Throwable<InjectionError, InjectableItem<ClassType>>`
 
 The internal API that `@Injectable` invokes to instantiate the provided class and add
-the instance to the injection context. Input must be a class constructor. The return value
-is a `Throwable` instance with either an `InjectionError` on error or the token of the
-injectable on success.
+the instance to the injection context. Input must be a class constructor. The return object
+is a `Throwable` with either an `InjectionError` on error or an `InjectableItem` on success.
 
 ### InjectionContext
 

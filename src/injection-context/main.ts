@@ -29,7 +29,7 @@ export class InjectionContext {
 
     this.addItem({
       token,
-      value: injectable,
+      instance: injectable,
     });
     this.processAutoWire(injectable);
 
@@ -46,13 +46,13 @@ export class InjectionContext {
       .onSuccess((existingItem) => {
         this.items[this.items.indexOf(existingItem)] = {
           ...existingItem,
-          value: injectable,
+          instance: injectable,
         };
       })
       .onError(() => {
         this.items.push({
           token,
-          value: injectable,
+          instance: injectable,
         });
       });
 
@@ -86,7 +86,7 @@ export class InjectionContext {
 
   public queryItemsByType<InjectableType>(type: string): InjectableType[] {
     return this.items
-      .map((item) => item.value)
+      .map((item) => item.instance)
       .filter((item) => {
         return Reflect.getMetadata(META_TYPE, item) === type;
       });
@@ -131,8 +131,8 @@ export class InjectionContext {
       this.logger.debug(`Injecting token ${token} into ${member} field.`);
 
       this.getItemByToken(token)
-        .onSuccess(({ value }) => {
-          (injectable as any)[member] = value; // eslint-disable-line no-param-reassign
+        .onSuccess(({ instance }) => {
+          (injectable as any)[member] = instance; // eslint-disable-line no-param-reassign
         })
         .onError((error) => {
           throw error;

@@ -35,10 +35,10 @@ function handleFieldInjection(
 
   injectionCtx
     .getItemByToken(tokenOrClass)
-    .onSuccess(({ value }) => {
+    .onSuccess(({ instance }) => {
       logger.debug(`Found injectable, inserting into class.`);
 
-      (classCtor as any)[member] = value;
+      (classCtor as any)[member] = instance;
     })
     .onError(() => {
       addTokenToAutowireMaps(classCtor, member, tokenOrClass as string);

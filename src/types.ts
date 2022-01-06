@@ -5,7 +5,7 @@ export type InjectableItemModel<ItemType> = InjectableItem<ItemType>;
 
 export interface InjectableItem<ItemType> {
   token: string;
-  value: ItemType;
+  instance: ItemType;
 }
 
 export enum InjectableType {

@@ -2,7 +2,7 @@ import { PARAM_LIST, META_PARAMS, META_TOKEN } from "../constants";
 import { useDebugger } from "../debugger";
 import { useInjectionContext } from "../injection-context";
 import { fail, success, Throwable } from "../throwable";
-import { Newable, InjectionError } from "../types";
+import { Newable, InjectionError, InjectableItem } from "../types";
 
 import { InjectableParamMap } from "./types";
 
@@ -11,7 +11,7 @@ const { logger } = useDebugger("Injectable");
 
 export function makeClassInjectable<ClassType extends Newable>(
   classCtor: ClassType
-): Throwable<InjectionError, string> {
+): Throwable<InjectionError, InjectableItem<ClassType>> {
   try {
     logger.debug(`Making injectable instance of class ${classCtor.name}.`);
 
@@ -21,10 +21,11 @@ export function makeClassInjectable<ClassType extends Newable>(
     if (existingToken) {
       logger.debug("Class already instantiated, returning existing instance.");
 
-      const getItemResult = injectionCtx.getItemByToken(existingToken);
+      const getItemResult =
+        injectionCtx.getItemByToken<ClassType>(existingToken);
 
       if (getItemResult.isSuccess()) {
-        return success(getItemResult.value().token);
+        return success(getItemResult.value());
       }
 
       throw getItemResult.value();
@@ -54,7 +55,7 @@ export function makeClassInjectable<ClassType extends Newable>(
 function addClassToInjectionCtx<ClassType extends Newable>(
   ClassCtor: ClassType,
   resolvedDeps: any[]
-): string {
+): InjectableItem<ClassType> {
   let instance;
 
   try {
@@ -66,7 +67,7 @@ function addClassToInjectionCtx<ClassType extends Newable>(
   const token: string = injectionCtx.register(instance);
   Reflect.defineMetadata(META_TOKEN, token, ClassCtor);
 
-  return token;
+  return { token, instance };
 }
 
 function processDependencies(
@@ -102,11 +103,11 @@ function resolveDependency(
   );
 
   if (getItemResult.isSuccess()) {
-    const { value: instantiatedClass, token } = getItemResult.value();
+    const { instance, token } = getItemResult.value();
 
     logger.debug(`Already instantiated with token ${token}.`);
 
-    return instantiatedClass;
+    return instance;
   }
 
   logger.debug("Not instantiated, see if we can instantiate it now.");

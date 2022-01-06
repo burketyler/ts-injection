@@ -23,5 +23,5 @@ export function resolve<InjectableType extends Newable>(
     );
   }
 
-  return getItemResult.value().value as InstanceType<InjectableType>;
+  return getItemResult.value().instance as InstanceType<InjectableType>;
 }
