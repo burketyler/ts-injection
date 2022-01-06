@@ -7,7 +7,9 @@
     "di",
     "dependency injection",
     "injection",
-    "nodejs"
+    "nodejs",
+    "decorators",
+    "annotations"
   ],
   "main": ".build/index.js",
   "types": ".build/index.d.ts",
@@ -21,34 +23,44 @@
     "access": "public"
   },
   "scripts": {
+    "prettier:check": "prettier --check src/**/*.ts --loglevel error",
+    "prettier:fix": "prettier --write src/**/*.ts",
+    "lint:check": "eslint --check ./.eslintrc src/**/*.ts",
+    "lint:fix": "eslint --fix ./.eslintrc src/**/*.ts",
+    "code:check": "yarn prettier:check && yarn lint:check",
+    "code:fix": "yarn prettier:fix && yarn lint:fix",
     "clean": "rm -rf .build",
     "build": "yarn clean && tsc",
-    "prettier": "prettier --check src/**/*.ts --loglevel error",
-    "lint": "eslint src/**/*.ts",
-    "verify": "yarn prettier && yarn lint",
     "test": "jest",
+    "precommit": "yarn code:fix",
+    "docs": "(cd docs && yarn start)",
     "cm": "git-cz"
   },
   "dependencies": {
-    "reflect-metadata": "0.1.13"
+    "reflect-metadata": "0.1.13",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@semantic-release/git": "10.0.1",
-    "@types/jest": "27.0.2",
-    "@types/node": "16.11.7",
-    "@typescript-eslint/eslint-plugin": "5.3.1",
-    "@typescript-eslint/parser": "5.3.1",
+    "@types/jest": "27.4.0",
+    "@types/node": "17.0.8",
+    "@typescript-eslint/eslint-plugin": "5.9.0",
+    "@typescript-eslint/parser": "5.9.0",
     "commitizen": "4.2.4",
-    "commitlint": "14.1.0",
+    "commitlint": "16.0.1",
     "cz-customizable": "6.3.0",
-    "eslint": "8.2.0",
+    "eslint": "8.6.0",
+    "eslint-config-airbnb": "19.0.4",
+    "eslint-config-airbnb-typescript": "16.1.0",
     "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-import": "2.25.4",
+    "eslint-plugin-prettier": "4.0.0",
     "husky": "7.0.4",
-    "jest": "27.3.1",
-    "prettier": "2.4.1",
-    "semantic-release": "18.0.0",
-    "ts-jest": "27.0.7",
-    "typescript": "4.3.5"
+    "jest": "27.4.6",
+    "prettier": "2.5.1",
+    "semantic-release": "18.0.1",
+    "ts-jest": "27.1.2",
+    "typescript": "4.5.4"
   },
   "release": {
     "branches": [
@@ -76,11 +88,6 @@
     },
     "cz-customizable": {
       "config": "commitizen.config.js"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   }
 }
