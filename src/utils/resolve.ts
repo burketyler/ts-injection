@@ -1,15 +1,25 @@
-import { useInjectionContext } from "./use-injection-context";
 import { META_TOKEN } from "../constants";
-import { Newable } from "../types/newable";
+import { useInjectionContext } from "../injection-context";
+import { InjectionError, Newable } from "../types";
 
 const { injectionCtx } = useInjectionContext();
 
-export function resolve<T>(injectable: Newable): T {
+export function resolve<InjectableType>(injectable: Newable): InjectableType {
   const token: string = Reflect.getMetadata(META_TOKEN, injectable);
+
   if (!token) {
-    throw new Error(
+    throw new InjectionError(
       `Unable to get token from class metaData for ${injectable.name}.`
     );
   }
-  return injectionCtx.retrieveByToken(token) as T;
+
+  const getItemResult = injectionCtx.getItemByToken<InjectableType>(token);
+
+  if (getItemResult.isError()) {
+    throw new InjectionError(
+      `Failed to resolve ${injectable.name}. Injectable with token ${token} doesn't exist.`
+    );
+  }
+
+  return getItemResult.value().value;
 }
