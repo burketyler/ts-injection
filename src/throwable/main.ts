@@ -1,4 +1,5 @@
-// eslint-disable-next-line max-classes-per-file
+/* eslint-disable max-classes-per-file, no-underscore-dangle */
+
 export type Throwable<FailType, SuccessType> =
   | Fail<FailType, SuccessType>
   | Success<FailType, SuccessType>;
