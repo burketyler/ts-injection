@@ -49,7 +49,7 @@ const myObject = {
   config1: "123",
 };
 
-register<ConfigObject>(myObject, "TOKEN_CONFIG");
+register(myObject, "TOKEN_CONFIG");
 ```
 
 ## Injecting dependencies
@@ -108,7 +108,7 @@ export class App {
   constructor(private service: MyService) {}
 }
 
-const app = resolve<App>(App);
+const app = resolve(App);
 ```
 
 ## Environment variables

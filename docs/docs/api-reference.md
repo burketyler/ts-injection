@@ -62,7 +62,7 @@ export interface Options {
 
 ### resolve
 
-`resolve<ClassType>(injectable: Newable): ClassType`
+`resolve<InjectableType extends Newable>( injectable: InjectableType ): InstanceType<InjectableType>`
 
 Get an instance of the provided injectable class from the injection context.
 Use this instead of calling `new` on injectable classes.
@@ -81,7 +81,7 @@ will throw an error.
 
 ### register
 
-`register<ClassType>(injectable: ClassType, token: string, type: string = "OBJECT"): void`
+`register<InjectableType>(injectable: InjectableType, token: string, type = InjectType.OBJECT): void`
 
 Register any object or value with the injectable context given a specified token
 (used as reference). This injectable can then be accessed in classes with the `@Autowire`
@@ -118,13 +118,19 @@ The class responsible for managing the injection context that `ts-injection` use
 
 #### Domain
 
-##### InjectableItemModel
+##### InjectableItem
 
 ```typescript
-export interface InjectableItemModel<InjectableType> {
+export interface InjectableItem<InjectableType> {
   token: string;
   value: InjectableType;
 }
+```
+
+##### Newable
+
+```typescript
+type Newable = new (...args: any[]) => any;
 ```
 
 #### Methods
