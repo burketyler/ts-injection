@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 
 import { AUTO_WIRE_LIST, PARAM_LIST, META_TOKEN } from "../../constants";
+import { useDebugger } from "../../debugger";
 import { useInjectionContext } from "../../injection-context";
 import { Newable } from "../../types";
-import { useDebugger } from "../debugger";
 
 import { AutowireError } from "./types";
 

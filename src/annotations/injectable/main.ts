@@ -1,6 +1,6 @@
 import { META_TYPE } from "../../constants";
+import { useDebugger } from "../../debugger";
 import { InjectableType as InjectionType, Newable } from "../../types";
-import { useDebugger } from "../debugger";
 
 import { makeClassInjectable } from "./utils";
 

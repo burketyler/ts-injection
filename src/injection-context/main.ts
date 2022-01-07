@@ -1,5 +1,5 @@
-import { Debugger } from "../annotations/debugger";
 import { AUTO_WIRE_LIST, META_TYPE } from "../constants";
+import { Debugger } from "../debugger";
 import { fail, success, Throwable } from "../throwable";
 import { InjectableItem, Newable } from "../types";
 

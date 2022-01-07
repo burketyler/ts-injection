@@ -1,8 +1,8 @@
 import { PARAM_LIST, META_PARAMS, META_TOKEN } from "../../constants";
+import { useDebugger } from "../../debugger";
 import { useInjectionContext } from "../../injection-context";
 import { fail, success, Throwable } from "../../throwable";
 import { Newable, InjectionError, InjectableItem } from "../../types";
-import { useDebugger } from "../debugger";
 
 import { InjectableParamMap } from "./types";
 
