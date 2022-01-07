@@ -11,7 +11,7 @@ const { logger } = useDebugger("Injectable");
 
 export function makeClassInjectable<ClassType extends Newable>(
   classCtor: ClassType
-): Throwable<InjectionError, InjectableItem<ClassType>> {
+): Throwable<InjectionError, InjectableItem<InstanceType<ClassType>>> {
   try {
     logger.debug(`Making injectable instance of class ${classCtor.name}.`);
 
@@ -22,7 +22,7 @@ export function makeClassInjectable<ClassType extends Newable>(
       logger.debug("Class already instantiated, returning existing instance.");
 
       const getItemResult =
-        injectionCtx.getItemByToken<ClassType>(existingToken);
+        injectionCtx.getItemByToken<InstanceType<ClassType>>(existingToken);
 
       if (getItemResult.isSuccess()) {
         return success(getItemResult.value());
@@ -54,8 +54,8 @@ export function makeClassInjectable<ClassType extends Newable>(
 
 function addClassToInjectionCtx<ClassType extends Newable>(
   ClassCtor: ClassType,
-  resolvedDeps: any[]
-): InjectableItem<ClassType> {
+  resolvedDeps: unknown[]
+): InjectableItem<InstanceType<ClassType>> {
   let instance;
 
   try {

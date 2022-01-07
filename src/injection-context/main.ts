@@ -8,7 +8,7 @@ import { InjectableNotFoundError } from "./types";
 export class InjectionContext {
   private static readonly instance = new InjectionContext();
 
-  private readonly items: InjectableItem<any>[];
+  private readonly items: InjectableItem<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   private readonly logger: Debugger;
 
@@ -24,7 +24,7 @@ export class InjectionContext {
     return this.instance;
   }
 
-  public register(injectable: any): string {
+  public register<ClassType extends Newable>(injectable: ClassType): string {
     const token = this.getNextToken();
 
     this.addItem({
@@ -66,6 +66,7 @@ export class InjectionContext {
   /**
    * @deprecated please use getItemByToken instead
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public findItemByToken(token: string): InjectableItem<any> | undefined {
     return this.items.find((inj) => inj.token === token);
   }
@@ -132,7 +133,7 @@ export class InjectionContext {
 
       this.getItemByToken(token)
         .onSuccess(({ instance }) => {
-          (injectable as any)[member] = instance; // eslint-disable-line no-param-reassign
+          injectable[member as keyof Newable] = instance as never; // eslint-disable-line no-param-reassign
         })
         .onError((error) => {
           throw error;

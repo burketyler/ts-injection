@@ -35,8 +35,8 @@ export function Env<VariableType>(
 }
 
 function injectIntoField(
-  type: () => any,
-  classCtor: any,
+  type: () => unknown,
+  classCtor: Newable,
   varName: string,
   fieldName: string,
   envVar: string | undefined,
@@ -57,10 +57,14 @@ function injectIntoField(
 
   if (mapper) {
     logger.debug("Using provided mapper to parse.");
-    classCtor[fieldName] = mapper(envVar); // eslint-disable-line no-param-reassign
+    classCtor[fieldName as keyof Newable] = mapper(envVar) as never; // eslint-disable-line no-param-reassign
   } else {
     logger.debug(`Using inferred type ${type} to parse.`);
-    classCtor[fieldName] = parseEnvVarByInferredType(type, envVar); // eslint-disable-line no-param-reassign
+    // eslint-disable-next-line no-param-reassign
+    classCtor[fieldName as keyof Newable] = parseEnvVarByInferredType(
+      type,
+      envVar
+    ) as never;
   }
 }
 

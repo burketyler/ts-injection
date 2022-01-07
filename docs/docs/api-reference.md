@@ -105,7 +105,7 @@ Read more about this in [InjectionContext](/docs/api-reference#injectioncontext)
 
 ### makeClassInjectable
 
-`makeClassInjectable<ClassType extends Newable>(classCtor: ClassType) : Throwable<InjectionError, InjectableItem<ClassType>>`
+`makeClassInjectable<ClassType extends Newable>(classCtor: ClassType) : Throwable<InjectionError, InjectableItem<InstanceType<ClassType>>>`
 
 The internal API that `@Injectable` invokes to instantiate the provided class and add
 the instance to the injection context. Input must be a class constructor. The return object
@@ -136,7 +136,7 @@ type Newable = new (...args: any[]) => any;
 
 ##### register
 
-`register<InjectableType>(injectable: InjectableType): string`
+`register<ClassType extends Newable>(injectable: ClassType): string`
 
 Register an injectable class object or value into the injection context.
 Returns an auto-generated token reference to the injectable.

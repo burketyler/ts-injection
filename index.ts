@@ -8,3 +8,9 @@ export * from "./src/injection-context";
 export * from "./src/throwable";
 export * from "./src/utils";
 export * from "./src/types";
+export {
+  PRIMITIVE_TYPES,
+  META_TYPE,
+  META_PARAMS,
+  META_TOKEN,
+} from "./src/constants";

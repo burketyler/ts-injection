@@ -10,8 +10,9 @@ import { AutowireError } from "./types";
 const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Autowire");
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function Autowire(tokenOrClass: string | Newable): any {
-  return (classCtor: any, member: string, index: number) => {
+  return (classCtor: Newable, member: string, index: number) => {
     if (index === undefined) {
       handleFieldInjection(tokenOrClass, classCtor, member);
     } else {
@@ -38,7 +39,7 @@ function handleFieldInjection(
     .onSuccess(({ instance }) => {
       logger.debug(`Found injectable, inserting into class.`);
 
-      (classCtor as any)[member] = instance;
+      classCtor[member as keyof Newable] = instance as never;
     })
     .onError(() => {
       addTokenToAutowireMaps(classCtor, member, tokenOrClass as string);
@@ -63,11 +64,11 @@ function addTokenToParamMap(
   token: string,
   index: number
 ): void {
-  if (!(classCtor as any)[PARAM_LIST]) {
-    (classCtor as any)[PARAM_LIST] = {};
+  if (!classCtor[PARAM_LIST as keyof Newable]) {
+    classCtor[PARAM_LIST as keyof Newable] = {} as never;
   }
 
-  (classCtor as any)[PARAM_LIST][index] = token;
+  classCtor[PARAM_LIST as keyof Newable][index] = token as never;
 }
 
 function addTokenToAutowireMaps(
@@ -79,11 +80,11 @@ function addTokenToAutowireMaps(
     "The injectable isn't registered yet, adding AutoWire rule to class for when it becomes available."
   );
 
-  if (!(classCtor as any)[PARAM_LIST]) {
-    (classCtor as any)[PARAM_LIST] = {};
+  if (!classCtor[PARAM_LIST as keyof Newable]) {
+    classCtor[PARAM_LIST as keyof Newable] = {} as never;
   }
 
-  (classCtor as any)[AUTO_WIRE_LIST][member] = token;
+  classCtor[AUTO_WIRE_LIST as keyof Newable][member] = token as never;
 }
 
 function getClassToken(classCtor: Newable): string {
