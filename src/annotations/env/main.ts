@@ -1,6 +1,6 @@
-import { PRIMITIVE_TYPES } from "../constants";
+import { PRIMITIVE_TYPES } from "../../constants";
+import { Newable } from "../../types";
 import { Debugger } from "../debugger";
-import { Newable } from "../types";
 
 import { Options, EnvironmentVariableError } from "./types";
 
