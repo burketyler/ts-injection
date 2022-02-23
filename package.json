@@ -25,8 +25,8 @@
   "scripts": {
     "prettier:check": "prettier --check src/**/*.ts --loglevel error",
     "prettier:fix": "prettier --write src/**/*.ts",
-    "lint:check": "eslint -c .eslintrc src/**/*.ts",
-    "lint:fix": "eslint --fix -c .eslintrc src/**/*.ts",
+    "lint:check": "eslint src/**/*.ts",
+    "lint:fix": "eslint --fix src/**/*.ts",
     "code:check": "yarn prettier:check && yarn lint:check",
     "code:fix": "yarn prettier:fix && yarn lint:fix",
     "clean": "rm -rf .build",

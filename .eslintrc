@@ -6,8 +6,7 @@
   "ignorePatterns": ["*.md", "node_modules", ".build", "docs"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json",
-    "createDefaultProgram": true
+    "project": "./tsconfig.json"
   },
   "settings": {
     "import/core-modules": ["aws-sdk", "aws-lambda"]
@@ -16,6 +15,7 @@
   "extends": [
     "airbnb/base",
     "airbnb-typescript/base",
+    "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript"

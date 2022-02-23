@@ -87,10 +87,10 @@ export class InjectionContext {
 
   public queryItemsByType<InjectableType>(type: string): InjectableType[] {
     return this.items
-      .map((item) => item.instance)
       .filter((item) => {
-        return Reflect.getMetadata(META_TYPE, item) === type;
-      });
+        return Reflect.getMetadata(META_TYPE, item.instance) === type;
+      })
+      .map((item) => item.instance);
   }
 
   public addMetadataToItem(

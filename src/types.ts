@@ -9,8 +9,8 @@ export interface InjectableItem<ItemType> {
 }
 
 export enum InjectableType {
-  CLASS,
-  OBJECT,
+  CLASS = "CLASS",
+  OBJECT = "OBJECT",
 }
 
 export type Newable = new (...args: any[]) => any;

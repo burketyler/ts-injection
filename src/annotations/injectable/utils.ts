@@ -1,4 +1,9 @@
-import { PARAM_LIST, META_PARAMS, META_TOKEN } from "../../constants";
+import {
+  PARAM_LIST,
+  META_PARAMS,
+  META_TOKEN,
+  META_TYPE,
+} from "../../constants";
 import { useDebugger } from "../../debugger";
 import { useInjectionContext } from "../../injection-context";
 import { fail, success, Throwable } from "../../throwable";
@@ -10,7 +15,11 @@ const { injectionCtx } = useInjectionContext();
 const { logger } = useDebugger("Injectable");
 
 export function makeClassInjectable<ClassType extends Newable>(
-  classCtor: ClassType
+  classCtor: ClassType,
+  options?: {
+    token?: string;
+    type?: string;
+  }
 ): Throwable<InjectionError, InjectableItem<InstanceType<ClassType>>> {
   try {
     logger.debug(`Making injectable instance of class ${classCtor.name}.`);
@@ -28,7 +37,7 @@ export function makeClassInjectable<ClassType extends Newable>(
         return success(getItemResult.value());
       }
 
-      throw getItemResult.value();
+      return fail(getItemResult.value());
     }
 
     if (!dependencyList) {
@@ -38,7 +47,8 @@ export function makeClassInjectable<ClassType extends Newable>(
     return success(
       addClassToInjectionCtx(
         classCtor,
-        processDependencies(classCtor, dependencyList ?? [])
+        processDependencies(classCtor, dependencyList ?? []),
+        options
       )
     );
   } catch (error) {
@@ -54,9 +64,14 @@ export function makeClassInjectable<ClassType extends Newable>(
 
 function addClassToInjectionCtx<ClassType extends Newable>(
   ClassCtor: ClassType,
-  resolvedDeps: unknown[]
+  resolvedDeps: unknown[],
+  options?: {
+    token?: string;
+    type?: string;
+  }
 ): InjectableItem<InstanceType<ClassType>> {
-  let instance;
+  let instance: InstanceType<ClassType>;
+  let token: string;
 
   try {
     instance = new ClassCtor(...resolvedDeps);
@@ -64,7 +79,19 @@ function addClassToInjectionCtx<ClassType extends Newable>(
     throw new InjectionError(`Error calling class constructor: ${e.message}.`);
   }
 
-  const token: string = injectionCtx.register(instance);
+  if (options?.token) {
+    injectionCtx.registerWithToken(instance, options.token);
+    token = options.token;
+  } else {
+    token = injectionCtx.register(instance);
+  }
+
+  if (options?.type) {
+    injectionCtx.addMetadataToItem(token, {
+      [META_TYPE]: options.type,
+    });
+  }
+
   Reflect.defineMetadata(META_TOKEN, token, ClassCtor);
 
   return { token, instance };
@@ -126,7 +153,7 @@ function getTokenForDependency(
   dependency: unknown,
   index: number
 ): string {
-  const token = Reflect.getMetadata(META_TOKEN, dependency as Object);
+  const token = Reflect.getMetadata(META_TOKEN, dependency as Object); // eslint-disable-line @typescript-eslint/ban-types
   const paramMap: InjectableParamMap = classCtor.prototype[PARAM_LIST];
 
   if (token) {

@@ -1,1 +1,1 @@
-export { Env } from "./main";
+export { Env, env, envOptional, envRequired } from "./main";

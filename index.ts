@@ -3,9 +3,9 @@
 import "reflect-metadata";
 
 export * from "./src/annotations/autowire";
-export * from "./src/debugger";
 export * from "./src/annotations/env";
 export * from "./src/annotations/injectable";
+export * from "./src/debugger";
 export * from "./src/injection-context";
 export * from "./src/throwable";
 export * from "./src/utils";

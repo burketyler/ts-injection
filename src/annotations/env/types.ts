@@ -8,6 +8,7 @@ export class EnvironmentVariableError extends Error {
 }
 
 export interface Options<VariableType> {
-  failBehaviour?: "THROW" | "LOG";
+  default?: VariableType;
+  failBehaviour?: "THROW" | "LOG" | "SILENT";
   mapper?: (val: string) => VariableType;
 }

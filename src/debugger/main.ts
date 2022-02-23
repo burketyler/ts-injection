@@ -3,7 +3,7 @@
 export class Debugger {
   private static readonly loggers: { [key: string]: Debugger } = {};
 
-  private isDebugMode: boolean = false;
+  private isDebugMode = false;
 
   public static getInstance(className: string): Debugger {
     const debugClasses = process.env.DEBUG_CLASSES;
