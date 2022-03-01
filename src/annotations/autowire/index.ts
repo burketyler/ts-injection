@@ -1,1 +1,1 @@
-export { Autowire } from "./main";
+export { Autowire, autowire } from "./main";

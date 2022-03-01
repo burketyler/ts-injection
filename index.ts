@@ -2,17 +2,19 @@
 
 import "reflect-metadata";
 
-export * from "./src/annotations/autowire";
-export * from "./src/annotations/env";
-export * from "./src/annotations/injectable";
-export * from "./src/debugger";
-export * from "./src/injection-context";
 export * from "./src/throwable";
-export * from "./src/utils";
-export * from "./src/types";
+
+export { Autowire } from "./src/annotations/autowire";
+export { Env, env, envRequired, envOptional } from "./src/annotations/env";
+export { Injectable, injectable } from "./src/annotations/injectable";
+export { Logger, LogLevel, LogNamespace } from "./src/logger";
+export { InjectionContext, RegisterOptions } from "./src/injection-context";
+export { InjectableRepo, InjectableNotFoundError } from "./src/injectable-repo";
 export {
-  PRIMITIVE_TYPES,
-  META_TYPE,
-  META_PARAMS,
-  META_TOKEN,
-} from "./src/constants";
+  InjectableItem,
+  InjectionError,
+  ClassMetadata,
+  Newable,
+  InjectableOptions,
+} from "./src/types";
+export { PRIMITIVE_TYPES } from "./src/constants";

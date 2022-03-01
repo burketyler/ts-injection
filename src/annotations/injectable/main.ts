@@ -1,19 +1,38 @@
-import { META_TYPE } from "../../constants";
-import { useDebugger } from "../../debugger";
-import { InjectableType as InjectionType, Newable } from "../../types";
+import { ClassRegistry } from "../../class-registry";
+import { TAG_CLASS } from "../../constants";
+import { RegisterOptions } from "../../injection-context";
+import { Logger, LogNamespace } from "../../logger";
+import { ClassMetadata, Newable } from "../../types";
 
-import { makeClassInjectable } from "./utils";
+const logger = new Logger(LogNamespace.INJECTABLE);
 
-const { logger } = useDebugger("Injectable");
+export function injectable<ClassType extends Newable>(
+  ctor: ClassType,
+  options: Partial<RegisterOptions> = {}
+) {
+  return Injectable(options);
+}
 
-export function Injectable<InjectableType extends Newable>(
-  classCtor: InjectableType
-): void {
-  logger.debug(`Detected Injectable class ${classCtor.name}.`);
+export function Injectable<ClassType extends Newable>(
+  options: Partial<RegisterOptions> = {}
+) {
+  return (ctor: ClassType): void => {
+    logger.info(`Detected Injectable class ${ctor.name}.`);
 
-  Reflect.defineMetadata(META_TYPE, InjectionType.CLASS, classCtor);
+    const { id } = ClassRegistry.register(ctor);
 
-  makeClassInjectable(classCtor).onError((error) => {
-    throw error;
-  });
+    if (!options.tags) {
+      // eslint-disable-next-line no-param-reassign
+      options.tags = [TAG_CLASS];
+    }
+
+    Reflect.defineMetadata(
+      ClassMetadata.OPTIONS,
+      options ?? { tags: [TAG_CLASS] },
+      ctor
+    );
+    Reflect.defineMetadata(ClassMetadata.CLASS_ID, id, ctor);
+
+    logger.debug(`Added class to ClassRegistry with ID: ${id}.`);
+  };
 }

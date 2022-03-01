@@ -1,8 +1,5 @@
-export class InjectableNotFoundError extends Error {
-  constructor(message?: string) {
-    super(message);
-    this.name = "InjectableNotFoundError";
-    Object.setPrototypeOf(this, InjectableNotFoundError.prototype);
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
+import { InjectableOptions } from "../types";
+
+export type RegisterOptions = Omit<InjectableOptions, "token"> & {
+  token?: string;
+};

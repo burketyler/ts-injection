@@ -1,33 +1,32 @@
 import { PRIMITIVE_TYPES } from "../../constants";
-import { Debugger } from "../../debugger";
-import { Newable } from "../../types";
+import { Logger, LogNamespace, LogLevel } from "../../logger";
 
-import { Options, EnvironmentVariableError } from "./types";
+import { EnvironmentVariableError, EnvVarOptions } from "./types";
 
-const logger: Debugger = Debugger.getInstance("Env");
+const logger = new Logger(LogNamespace.ENV);
 
 export function Env<VariableType>(
   varName: string,
-  options?: Options<VariableType>
+  options?: EnvVarOptions<VariableType>
 ) {
-  return (classCtor: Newable, fieldName: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (classCtor: any, fieldName: string) => {
     validate();
 
-    logger.debug(
-      `Injecting env var ${varName} into ${classCtor.constructor.name}.${fieldName}`
+    logger.info(
+      `Injecting environment var '${varName}' into ${classCtor.constructor.name}'s property '${fieldName}'.`
     );
 
     const type = Reflect.getMetadata("design:type", classCtor, fieldName);
-    const variable = getEnvVar(varName, options, type);
 
     // eslint-disable-next-line no-param-reassign
-    classCtor[fieldName as keyof Newable] = variable as never;
+    classCtor[fieldName as keyof unknown] = getEnvVar(varName, options, type);
   };
 }
 
 export function env<VariableType>(
   varName: string,
-  options?: Options<VariableType>
+  options?: EnvVarOptions<VariableType>
 ): VariableType | undefined {
   validate();
 
@@ -36,7 +35,7 @@ export function env<VariableType>(
 
 export function envRequired<VariableType>(
   varName: string,
-  options?: Omit<Options<VariableType>, "default" | "failBehaviour">
+  options?: Omit<EnvVarOptions<VariableType>, "default" | "failBehaviour">
 ): VariableType | undefined {
   validate();
 
@@ -45,7 +44,7 @@ export function envRequired<VariableType>(
 
 export function envOptional<VariableType>(
   varName: string,
-  options?: Omit<Options<VariableType>, "default" | "failBehaviour">
+  options?: Omit<EnvVarOptions<VariableType>, "default" | "failBehaviour">
 ): VariableType | undefined {
   validate();
 
@@ -62,20 +61,20 @@ function validate(): void {
 
 function getEnvVar<VariableType>(
   varName: string,
-  { mapper, failBehaviour }: Options<VariableType> = {},
+  { mapper, failBehaviour }: EnvVarOptions<VariableType> = {},
   type?: () => VariableType
 ): VariableType | undefined {
   const envVar = process.env[varName];
 
   if (!envVar) {
-    const message = `Environment variable '${varName}' is undefined.`;
+    const errMsg = `Environment variable '${varName}' is undefined.`;
 
     if (failBehaviour !== "SILENT") {
-      console.warn(message); // eslint-disable-line no-console
+      logger.log(LogLevel.WARN, errMsg);
     }
 
     if (failBehaviour === "THROW") {
-      throw new EnvironmentVariableError(message);
+      throw new EnvironmentVariableError(errMsg);
     }
 
     return undefined;

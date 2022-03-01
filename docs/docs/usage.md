@@ -14,12 +14,12 @@ context.
 This means that:
 
 1. it can be injected into other classes.
-2. any injectable classes provided as constructor arguments are automatically resolved.
+2. any injectable classes provided as newable arguments are automatically resolved.
 
 ```typescript
 @Injectable
 export class MyService {
-  constructor() {}
+  newable() {}
 
   public test() {
     console.log("Injection context test from MyService.");
@@ -30,14 +30,14 @@ export class MyService {
 :::info
 
 Because it's managed by the injection context, a class marked as `@Injectable`
-can **_only_** define constructor arguments that are injectables. Never construct
+can **_only_** define newable arguments that are injectables. Never construct
 `App` using `new`, always use `resolve()`.
 
 :::
 
 ### Named injectables
 
-You can make any other variable injectable using the `register()`method. You will need to specify a unique token name to
+You can make any other variable injectable using the `register()`method. You will need to specify a unique id name to
 identify the value.
 
 ```typescript
@@ -56,13 +56,13 @@ register(myObject, "TOKEN_CONFIG");
 
 ### Constructor injection
 
-Any constructor arguments provided to an `@Injectable` class will be automatically resolved from the injection context.
+Any newable arguments provided to an `@Injectable` class will be automatically resolved from the injection context.
 You can also specify a named injectable using the `@Autowire` annotation.
 
 ```typescript
 @Injectable
 export class App {
-  constructor(
+  newable(
     private service: MyService,
     @Autowire("TOKEN_CONFIG") private config: ConfigObject
   ) {
@@ -88,7 +88,7 @@ export class App {
   @Autowire("TOKEN_CONFIG")
   private config: ConfigObject;
 
-  constructor() {
+  newable() {
     this.service.test();
     // Outputs: Injection context test from MyService.
     console.log(this.config);
@@ -105,7 +105,7 @@ of your entry point class from the injection context.
 ```typescript
 @Injectable
 export class App {
-  constructor(private service: MyService) {}
+  newable(private service: MyService) {}
 }
 
 const app = resolve(App);
@@ -145,7 +145,7 @@ export class App {
   @Env<MyObj>("CFG_OBJ", mapObj)
   private myMappedObj: MyObj;
 
-  constructor() {
+  newable() {
     console.log(this.myString);
     // "test"
     console.log(this.myNumber);

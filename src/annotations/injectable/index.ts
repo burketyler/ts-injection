@@ -1,2 +1,1 @@
-export { Injectable } from "./main";
-export { makeClassInjectable } from "./utils";
+export { Injectable, injectable } from "./main";

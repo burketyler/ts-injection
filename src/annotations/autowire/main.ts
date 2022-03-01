@@ -1,100 +1,85 @@
 /* eslint-disable no-param-reassign */
 
-import { AUTO_WIRE_LIST, PARAM_LIST, META_TOKEN } from "../../constants";
-import { useDebugger } from "../../debugger";
-import { useInjectionContext } from "../../injection-context";
-import { Newable } from "../../types";
+import { AUTO_WIRE_LIST, PARAM_LIST } from "../../constants";
+import { Logger, LogNamespace } from "../../logger";
+import { ClassMetadata, InjectableClass, Newable, Proto } from "../../types";
 
 import { AutowireError } from "./types";
 
-const { injectionCtx } = useInjectionContext();
-const { logger } = useDebugger("Autowire");
+const logger = new Logger(LogNamespace.AUTOWIRE);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function autowire(token: string): any;
+export function autowire(_class: Newable): any;
+export function autowire(tokenOrClass: string | Newable): any {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+  return typeof tokenOrClass === "string"
+    ? Autowire(tokenOrClass)
+    : Autowire(tokenOrClass);
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function Autowire(token: string): any;
+export function Autowire(_class: Newable): any;
 export function Autowire(tokenOrClass: string | Newable): any {
-  return (classCtor: Newable, member: string, index: number) => {
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+  return (proto: Proto | Newable, member: string, index: number) => {
     if (index === undefined) {
-      handleFieldInjection(tokenOrClass, classCtor, member);
+      handleFieldInjection(tokenOrClass, proto as Proto, member);
     } else {
-      handleParameterInjection(tokenOrClass, classCtor, member, index);
+      handleConstructorInjection(tokenOrClass, proto as Newable, member, index);
     }
   };
 }
 
 function handleFieldInjection(
   tokenOrClass: string | Newable,
-  classCtor: Newable,
-  member: string
+  proto: Proto,
+  fieldName: string
 ): void {
+  logger.info(`Processing Autowire for ${proto.constructor.name}.`);
+
+  const tokenOrClassId =
+    typeof tokenOrClass === "string" ? tokenOrClass : getClassId(tokenOrClass);
+
   logger.debug(
-    `Attempting to inject ${tokenOrClass} into ${classCtor.constructor.name}.${member}.`
+    `Binding injectable ${tokenOrClassId} to property '${fieldName}'.`
   );
 
-  if (typeof tokenOrClass !== "string") {
-    tokenOrClass = getClassToken(tokenOrClass);
-  }
-
-  injectionCtx
-    .getItemByToken(tokenOrClass)
-    .onSuccess(({ instance }) => {
-      logger.debug(`Found injectable, inserting into class.`);
-
-      classCtor[member as keyof Newable] = instance as never;
-    })
-    .onError(() => {
-      addTokenToAutowireMaps(classCtor, member, tokenOrClass as string);
-    });
+  proto[AUTO_WIRE_LIST] = proto[AUTO_WIRE_LIST] ?? {};
+  proto[AUTO_WIRE_LIST][fieldName] = tokenOrClassId;
 }
 
-function handleParameterInjection(
+function handleConstructorInjection(
   tokenOrClass: string | Newable,
-  classCtor: Newable,
+  ctor: Newable,
   member: string,
   index: number
 ): void {
-  if (typeof tokenOrClass !== "string") {
-    tokenOrClass = getClassToken(tokenOrClass);
-  }
+  logger.info(`Processing Autowire for ${ctor.name}.`);
 
-  addTokenToParamMap(classCtor.prototype, tokenOrClass, index);
-}
+  const tokenOrClassId =
+    typeof tokenOrClass === "string" ? tokenOrClass : getClassId(tokenOrClass);
 
-function addTokenToParamMap(
-  classCtor: Newable,
-  token: string,
-  index: number
-): void {
-  if (!classCtor[PARAM_LIST as keyof Newable]) {
-    classCtor[PARAM_LIST as keyof Newable] = {} as never;
-  }
-
-  classCtor[PARAM_LIST as keyof Newable][index] = token as never;
-}
-
-function addTokenToAutowireMaps(
-  classCtor: Newable,
-  member: string,
-  token: string
-): void {
   logger.debug(
-    "The injectable isn't registered yet, adding AutoWire rule to class for when it becomes available."
+    `Binding injectable ${tokenOrClassId} to constructor at index ${index}.`
   );
 
-  if (!classCtor[PARAM_LIST as keyof Newable]) {
-    classCtor[PARAM_LIST as keyof Newable] = {} as never;
-  }
-
-  classCtor[AUTO_WIRE_LIST as keyof Newable][member] = token as never;
+  ctor[PARAM_LIST] = ctor[PARAM_LIST] ?? {};
+  (ctor as InjectableClass)[PARAM_LIST][index] = tokenOrClassId;
 }
 
-function getClassToken(classCtor: Newable): string {
-  const token = Reflect.getMetadata(META_TOKEN, classCtor);
+function getClassId(classCtor: Newable): string {
+  const token: string | undefined = Reflect.getMetadata(
+    ClassMetadata.CLASS_ID,
+    classCtor
+  );
 
   if (token === undefined) {
     throw new AutowireError(
-      "A newable constructor was provided but it has no token in metadata."
+      `Attempting to bind non-injectable class ${classCtor.name}.`
     );
-  } else {
-    return token;
   }
+
+  return token;
 }

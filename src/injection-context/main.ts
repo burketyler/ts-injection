@@ -1,143 +1,270 @@
-import { AUTO_WIRE_LIST, META_TYPE } from "../constants";
-import { Debugger } from "../debugger";
-import { fail, success, Throwable } from "../throwable";
-import { InjectableItem, Newable } from "../types";
+/* eslint-disable no-param-reassign */
 
-import { InjectableNotFoundError } from "./types";
+import { ClassRegistry } from "../class-registry";
+import {
+  AUTO_WIRE_LIST,
+  ERROR_LINK_CIRC_DEP,
+  TAG_CLASS,
+  TAG_OBJECT,
+} from "../constants";
+import { InjectableNotFoundError, InjectableRepo } from "../injectable-repo";
+import { Logger, LogNamespace } from "../logger";
+import { fail, success, Throwable } from "../throwable";
+import {
+  ClassMetadata,
+  InjectableItem,
+  InjectionError,
+  Newable,
+} from "../types";
+import { isClass, isNewable } from "../utils";
+
+import { RegisterOptions } from "./types";
 
 export class InjectionContext {
-  private static readonly instance = new InjectionContext();
+  public readonly repo: InjectableRepo;
 
-  private readonly items: InjectableItem<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+  private readonly logger: Logger;
 
-  private readonly logger: Debugger;
+  private readonly name: string;
 
-  private tokenIndex: number;
+  private isInitialized: boolean;
 
-  private constructor() {
-    this.tokenIndex = 0;
-    this.items = [];
-    this.logger = Debugger.getInstance("InjectionContext");
+  constructor(
+    name: string,
+    options?: {
+      isManualInit?: boolean;
+    }
+  ) {
+    this.logger = new Logger(LogNamespace.INJECTION_CONTEXT);
+    this.logger.info(`Creating new InjectionContext: ${name}.`);
+    this.repo = new InjectableRepo();
+    this.isInitialized = false;
+    this.name = name;
+
+    if (!options?.isManualInit) {
+      this.initialize();
+    }
   }
 
-  public static getInstance(): InjectionContext {
-    return this.instance;
-  }
-
-  public register<ClassType extends Newable>(injectable: ClassType): string {
-    const token = this.getNextToken();
-
-    this.addItem({
-      token,
-      instance: injectable,
-    });
-    this.processAutoWire(injectable);
-
-    this.logger.debug(`Injectable with token ${token} registered.`);
-
-    return token;
-  }
-
-  public registerWithToken<InjectableType>(
-    injectable: InjectableType,
-    token: string
-  ): void {
-    this.getItemByToken<InjectableType>(token)
-      .onSuccess((existingItem) => {
-        this.items[this.items.indexOf(existingItem)] = {
-          ...existingItem,
-          instance: injectable,
-        };
-      })
-      .onError(() => {
-        this.items.push({
-          token,
-          instance: injectable,
-        });
-      });
-
-    this.logger.debug(`Injectable with token ${token} registered.`);
-  }
-
-  public doesItemExist(token: string): boolean {
-    return this.items.some((inj) => inj.token === token);
-  }
-
-  /**
-   * @deprecated please use getItemByToken instead
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public findItemByToken(token: string): InjectableItem<any> | undefined {
-    return this.items.find((inj) => inj.token === token);
-  }
-
-  public getItemByToken<InjectableType>(
-    token: string
-  ): Throwable<InjectableNotFoundError, InjectableItem<InjectableType>> {
-    const item = this.items.find((inj) => inj.token === token);
-
-    if (!item) {
-      this.logger.debug(`Injectable with token ${token} not found.`);
-
-      return fail(new InjectableNotFoundError());
+  public initialize(): void {
+    if (this.isInitialized) {
+      this.logger.warn("Context already initialized.");
+      return;
     }
 
-    return success(item);
-  }
+    this.logger.info("Initializing items from ClassRegistry.");
 
-  public queryItemsByType<InjectableType>(type: string): InjectableType[] {
-    return this.items
-      .filter((item) => {
-        return Reflect.getMetadata(META_TYPE, item.instance) === type;
-      })
-      .map((item) => item.instance);
-  }
+    ClassRegistry.list().forEach(({ ctor }) => {
+      this.logger.debug(`Initializing class ${ctor.name}.`);
 
-  public addMetadataToItem(
-    token: string,
-    metaData: { [key: string]: unknown }
-  ): void {
-    const getItemResult = this.getItemByToken(token);
+      const options: RegisterOptions = Reflect.getMetadata(
+        ClassMetadata.OPTIONS,
+        ctor
+      );
 
-    getItemResult
-      .onSuccess((item) => {
-        Object.entries(metaData).forEach(([fieldName, value]) => {
-          Reflect.defineMetadata(fieldName, value, item);
-        });
-      })
-      .onError(() => {
-        this.logger.debug(
-          `Injectable with ${token} not found, can't add metadata.`
-        );
-      });
-  }
-
-  private addItem<InjectableType>(item: InjectableItem<InjectableType>): void {
-    this.items.push(item);
-  }
-
-  private getNextToken(): string {
-    this.tokenIndex += 1;
-
-    return this.tokenIndex.toString();
-  }
-
-  private processAutoWire(injectable: Newable): void {
-    this.logger.debug("Processing AutoWire rules.");
-
-    const rules: { [key: string]: string } =
-      injectable.constructor.prototype[AUTO_WIRE_LIST] ?? [];
-
-    Object.entries(rules).forEach(([member, token]) => {
-      this.logger.debug(`Injecting token ${token} into ${member} field.`);
-
-      this.getItemByToken(token)
-        .onSuccess(({ instance }) => {
-          injectable[member as keyof Newable] = instance as never; // eslint-disable-line no-param-reassign
+      this.instantiateClass(ctor)
+        .onSuccess((instance) => {
+          this.register(instance, options);
         })
         .onError((error) => {
           throw error;
         });
+    });
+
+    this.isInitialized = true;
+  }
+
+  public register<InjectableType>(
+    injectable: InjectableType,
+    token?: string
+  ): InjectableItem<InjectableType>;
+  public register<InjectableType>(
+    injectable: InjectableType,
+    options: RegisterOptions
+  ): InjectableItem<InjectableType>;
+  public register<InjectableType>(
+    injectable: InjectableType,
+    optionsOrToken: RegisterOptions | string | undefined
+  ): InjectableItem<InjectableType> {
+    let token: string | undefined;
+    let options: RegisterOptions;
+    const inputIsClass = isClass(injectable);
+    const defaultOptions = { tags: [inputIsClass ? TAG_CLASS : TAG_OBJECT] };
+
+    this.logger.info(
+      "Registering injectable.",
+      inputIsClass ? injectable.constructor?.name : injectable
+    );
+
+    if (typeof optionsOrToken === "string") {
+      token = optionsOrToken;
+      options = defaultOptions;
+    } else if (optionsOrToken?.token) {
+      token = optionsOrToken.token;
+      options = optionsOrToken ?? defaultOptions;
+    } else {
+      options = optionsOrToken ?? defaultOptions;
+    }
+
+    const item = this.repo.saveItem(injectable, options, token);
+
+    this.logger.debug(`Injectable registered with token: ${item.token}.`);
+
+    return item as InjectableItem<InjectableType>;
+  }
+
+  public resolve<InjectableType>(token: string): InjectableType;
+  public resolve<ClassType extends Newable>(
+    ctor: ClassType
+  ): InstanceType<ClassType>;
+  public resolve<InjectableType extends Newable>(
+    tokenOrCtor: string | InjectableType
+  ): InjectableType {
+    this.logger.info(
+      "Resolving injectable.",
+      isNewable(tokenOrCtor) ? tokenOrCtor.name : tokenOrCtor
+    );
+
+    if (!this.isInitialized) {
+      this.logger.warn("Context has no items, have you initialized?");
+    }
+
+    const getResult = isNewable(tokenOrCtor)
+      ? this.repo.getItem(tokenOrCtor)
+      : this.repo.getItem(tokenOrCtor);
+
+    return getResult
+      .onSuccess(({ instance }) => instance as InjectableType)
+      .onError((error) => {
+        throw error;
+      })
+      .output();
+  }
+
+  private instantiateClass<ClassType extends Newable>(
+    _Newable: ClassType
+  ): Throwable<InjectionError, InjectableItem<InstanceType<ClassType>>> {
+    try {
+      this.logger.info(`Making instance of class ${_Newable.name}.`);
+
+      const dependencyList =
+        Reflect.getMetadata(ClassMetadata.PARAMS, _Newable) ?? [];
+
+      if (!dependencyList[0]) {
+        this.logger.debug("Dependency is a primitive or has no constructor.");
+      }
+
+      const instance = new _Newable(
+        ...this.instantiateDependencies(_Newable, dependencyList)
+      );
+
+      this.processAutowires(instance);
+
+      return success(instance);
+    } catch (error) {
+      this.logger.debug(error);
+
+      return fail(
+        new InjectionError(`Error while instantiating class ${_Newable.name}.`)
+      );
+    }
+  }
+
+  private instantiateDependencies(
+    newable: Newable,
+    dependencies: Newable[]
+  ): unknown[] {
+    const resolved: unknown[] = [];
+
+    this.logger.debug(
+      `${newable.name} has ${dependencies.length} dependencies.`
+    );
+
+    dependencies.forEach((depCtor, index) => {
+      this.logger.debug(`Resolving dependency ${index + 1}: ${depCtor?.name}.`);
+
+      if (depCtor === undefined) {
+        this.logger.error(
+          "Circular dependency detected, cannot instantiate dependency.",
+          { read_more: ERROR_LINK_CIRC_DEP }
+        );
+      }
+
+      const getItemResult = this.repo.getItem(depCtor);
+
+      if (getItemResult.isSuccess()) {
+        const { instance, token, isTransient } = getItemResult.value();
+
+        if (isTransient) {
+          this.logger.debug(
+            `${depCtor.name} is transient, creating new instance.`
+          );
+        } else {
+          this.logger.debug(
+            `${depCtor.name} instance exists with token ${token}.`
+          );
+          resolved.push(instance);
+        }
+      } else {
+        this.logger.debug(`Creating new instance of ${depCtor.name}.`);
+
+        this.instantiateClass(depCtor)
+          .onSuccess(({ instance }) => {
+            resolved.push(instance);
+          })
+          .onError((error) => {
+            throw error;
+          })
+          .output();
+      }
+    });
+
+    return resolved;
+  }
+
+  private processAutowires(newable: Newable): void {
+    const { constructor: ctor } = newable;
+
+    const rules = Object.entries(ctor.prototype[AUTO_WIRE_LIST] ?? {});
+
+    this.logger.info(`${ctor.name} has ${rules.length} Autowire rules.`);
+
+    rules.forEach(([fieldName, tokenOrClassId], index) => {
+      let item: InjectableItem<unknown> | undefined;
+
+      this.logger.info(`Processing rule ${index + 1}.`);
+
+      const isClassId = tokenOrClassId.match(/^cls_.*/i);
+
+      if (isClassId) {
+        this.logger.debug(
+          `Token is a classId, get ${tokenOrClassId} from ClassRegistry.`
+        );
+
+        ClassRegistry.getById(tokenOrClassId).onSuccess((classItem) => {
+          this.repo.getItem(classItem.ctor).onSuccess((injItem) => {
+            item = injItem;
+          });
+        });
+      } else {
+        this.logger.debug(`Getting token ${tokenOrClassId} from context`);
+
+        this.repo.getItem(tokenOrClassId).onSuccess((injItem) => {
+          item = injItem;
+        });
+      }
+
+      if (!item) {
+        throw new InjectableNotFoundError(
+          `Injectable ${tokenOrClassId} not found.`
+        );
+      }
+
+      this.logger.info(
+        `Injecting token ${item.token} into prop '${fieldName}'.`
+      );
+
+      newable[fieldName as keyof Newable] = item.instance as never;
     });
   }
 }

@@ -7,7 +7,7 @@ export class EnvironmentVariableError extends Error {
   }
 }
 
-export interface Options<VariableType> {
+export interface EnvVarOptions<VariableType> {
   default?: VariableType;
   failBehaviour?: "THROW" | "LOG" | "SILENT";
   mapper?: (val: string) => VariableType;

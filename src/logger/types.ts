@@ -1,0 +1,16 @@
+export enum LogLevel {
+  ALL = "*",
+  DEBUG = "DEBUG",
+  INFO = "INFO",
+  WARN = "WARN",
+  ERROR = "ERROR",
+}
+
+export enum LogNamespace {
+  AUTOWIRE = "AUTOWIRE",
+  INJECTION_CONTEXT = "INJECTION_CONTEXT",
+  CLASS_REGISTRY = "CLASS_REGISTRY",
+  INJECTABLE_REPO = "INJECTABLE_REPO",
+  INJECTABLE = "INJECTABLE",
+  ENV = "ENV",
+}

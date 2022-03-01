@@ -14,12 +14,12 @@ If circular dependencies occur like in the scenario below, an error will be thro
 ```typescript
 @Injectable
 export class MyService {
-  constructor(private app: App) {}
+  newable(private app: App) {}
 }
 
 @Injectable
 export class App {
-  constructor(private service: MyService) {}
+  newable(private service: MyService) {}
 }
 ```
 
@@ -33,7 +33,7 @@ export class App {
   @Autowire("TOKEN")
   private config: ConfigObject;
 
-  constructor() {}
+  newable() {}
 }
 
 // This works
