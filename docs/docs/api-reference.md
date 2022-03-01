@@ -18,13 +18,13 @@ It can be retrieved from the context using `resolve` or `@Autowire`.
 `@Autowire(tokenOrClass: string | Newable)`
 
 Inject the specified named injectable or class injectable by its reference.
-In the case of a named injectable, provide the token name:
+In the case of a named injectable, provide the id name:
 
 ```typescript
 @Autowire("TOKEN_NAME")
 ```
 
-In the case of a class injectable, provide a reference to the class constructor:
+In the case of a class injectable, provide a reference to the class newable:
 
 ```typescript
 @Autowire(MyClass)
@@ -32,7 +32,7 @@ In the case of a class injectable, provide a reference to the class constructor:
 
 ### @Env
 
-`@Env<VariableType>(varName: string, options?: Options)`
+`@Env<VariableType>(varName: string, options?: InjectableOptions)`
 
 Inject the specified environment variable from process.env into the annotated class member.
 The `type` of the `class member` this annotation has been applied to is used to infer how
@@ -49,12 +49,13 @@ configured in the options using `failBehaviour`.
 
 :::
 
-##### Options
+##### InjectableOptions
 
 ```typescript
-export interface Options {
-  mapper?: <VariableType>(value: string) => VariableType;
-  failBehaviour?: "THROW" | "LOG";
+export interface InjectableOptions<VariableType> {
+  default?: VariableType;
+  failBehaviour?: "THROW" | "LOG" | "SILENT";
+  mapper?: (val: string) => VariableType;
 }
 ```
 
@@ -62,11 +63,11 @@ export interface Options {
 
 ### resolve
 
-`resolve<InjectableType extends Newable>( injectable: InjectableType ): InstanceType<InjectableType>`
+`resolve<ClassType extends Newable>( injectable: ClassType ): InstanceType<ClassType>`
 
 Get an instance of the provided injectable class from the injection context.
 Use this instead of calling `new` on injectable classes.
-Must supply a reference to the injectable class's constructor:
+Must supply a reference to the injectable class's newable:
 
 ```typescript
 resolve<MyClass>(MyClass);
@@ -81,9 +82,9 @@ will throw an error.
 
 ### register
 
-`register<InjectableType>(injectable: InjectableType, token: string, type = InjectType.OBJECT): void`
+`register<ClassType>(injectable: ClassType, id: string, type = InjectType.OBJECT): void`
 
-Register any object or value with the injectable context given a specified token
+Register any object or value with the injectable context given a specified id
 (used as reference). This injectable can then be accessed in classes with the `@Autowire`
 annotation. You can optionally specify a `type` which can be useful when extending this framework.
 
@@ -108,7 +109,7 @@ Read more about this in [InjectionContext](/docs/api-reference#injectioncontext)
 `makeClassInjectable<ClassType extends Newable>(classCtor: ClassType) : Throwable<InjectionError, InjectableItem<InstanceType<ClassType>>>`
 
 The internal API that `@Injectable` invokes to instantiate the provided class and add
-the instance to the injection context. Input must be a class constructor. The return object
+the instance to the injection context. Input must be a class newable. The return object
 is a `Throwable` with either an `InjectionError` on error or an `InjectableItem` on success.
 
 ### InjectionContext
@@ -120,9 +121,9 @@ The class responsible for managing the injection context that `ts-injection` use
 ##### InjectableItem
 
 ```typescript
-export interface InjectableItem<InjectableType> {
-  token: string;
-  value: InjectableType;
+export interface InjectableItem<ClassType> {
+  id: string;
+  value: ClassType;
 }
 ```
 
@@ -139,30 +140,30 @@ type Newable = new (...args: any[]) => any;
 `register<ClassType extends Newable>(injectable: ClassType): string`
 
 Register an injectable class object or value into the injection context.
-Returns an auto-generated token reference to the injectable.
+Returns an auto-generated id reference to the injectable.
 
 ##### registerWithToken
 
-`registerWithToken<InjectableType>(injectable: InjectableType, token: string): void`
+`registerWithToken<ClassType>(injectable: ClassType, id: string): void`
 
-Register an injectable class object or value into the injection context with a specific token.
-If the token already exists in the context, it will replace the existing item.
+Register an injectable class object or value into the injection context with a specific id.
+If the id already exists in the context, it will replace the existing item.
 
 ##### doesItemExist
 
-`doesItemExist(token: string): boolean`
+`doesItemExist(id: string): boolean`
 
-Check if a given injectable exists in the injectable context by its token reference.
+Check if a given injectable exists in the injectable context by its id reference.
 
 ##### getItemByToken
 
-`getItemByToken<InjectableType>(token: string): Throwable<InjectableNotFoundError, InjectableItem<InjectableType>>`
+`getItemByToken<ClassType>(id: string): Throwable<InjectableNotFoundError, InjectableItem<ClassType>>`
 
-Retrieve an injectable by its token reference. Returns a `Throwable` instance which will
+Retrieve an injectable by its id reference. Returns a `Throwable` instance which will
 contain an `InjectableNotFoundError` on error or the `InjectableItem` on success.
 
 ```typescript
-const getItemResult = getItemByToken<MyType>("token");
+const getItemResult = getItemByToken<MyType>("id");
 
 if (getItemResult.isError()) {
   // Handle error
@@ -173,24 +174,24 @@ return getItemResult.value(); // <- InjectableItem
 
 ##### addMetadataToItem
 
-`addMetadataToItem(token: string, metaData: { [key: string]: unknown }): void`
+`addMetadataToItem(id: string, metaData: { [key: string]: unknown }): void`
 
-Add the specified metaData keys to an injectable instance based on its token reference.\
+Add the specified metaData keys to an injectable instance based on its id reference.\
 E.g:
 
 ```typescript
-const token = makeClassInjectable(classCtor);
-injectionCtx.addMetadataToItem(token, {
+const id = makeClassInjectable(classCtor);
+injectionCtx.addMetadataToItem(id, {
   [META_TYPE]: "MY_TYPE",
 });
 ```
 
 #### queryItemsByType
 
-`queryItemsByType<InjectableType>(type: string): InjectableType[]`
+`queryItemsByType<ClassType>(type: string): ClassType[]`
 
 Retrieve an array of injectables that match the provided type.\
-Type is defined by the string value added to the injectable metaData key [META_TYPE](#meta_type).
+ClassType is defined by the string value added to the injectable metaData key [META_TYPE](#meta_type).
 
 ```typescript
 const injectables = injectionCtx.queryItemsByType("MY_TYPE");
