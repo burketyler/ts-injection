@@ -1,10 +1,7 @@
 import "reflect-metadata";
 
-import exp from "constants";
-
 import { Injectable } from "../../src/annotations/injectable";
-import { InjectableNotFoundError } from "../../src/injectable-repo";
-import { InjectionContext } from "../../src/injection-context";
+import { InjectionContainer } from "../../src/injection-container";
 
 const mockAssert = jest.fn();
 
@@ -30,22 +27,34 @@ class ClassTwo {
   }
 }
 
+class ClassThree {
+  constructor() {
+    mockAssert(this.constructor.name);
+  }
+}
+
 describe("Injection Context tests", () => {
   describe("When context should be manually initialized", () => {
-    let ctx: InjectionContext;
+    let ctx: InjectionContainer;
 
     beforeAll(() => {
-      ctx = new InjectionContext("Ctx1", { isManualInit: true });
+      ctx = new InjectionContainer("Ctx1", { isManualInit: true });
       ctx.register(objectOne, objectOne.token);
       ctx.register(objectTwo, objectTwo.token);
+      ctx.register(ClassThree);
     });
 
     it("Should not instantiate any classes until initialize has been called", () => {
-      expect(mockAssert).not.toHaveBeenCalled();
+      expect(mockAssert).toHaveBeenCalledWith(ClassThree.name);
+      expect(mockAssert).toBeCalledTimes(1);
+
       expect(ctx.resolve(objectOne.token)).toEqual(objectOne);
       expect(ctx.resolve(objectTwo.token)).toEqual(objectTwo);
-      expect(() => ctx.resolve(ClassOne)).toThrow(InjectableNotFoundError);
-      expect(() => ctx.resolve(ClassTwo)).toThrow(InjectableNotFoundError);
+      expect(ctx.resolve(ClassThree)).toBeDefined();
+      expect(ctx.resolve(ClassThree)).toBeInstanceOf(ClassThree);
+
+      expect(ctx.resolve(ClassOne)).toBeUndefined();
+      expect(ctx.resolve(ClassTwo)).toBeUndefined();
     });
 
     it("Should not instantiate any classes until initialize has been called", () => {
@@ -53,10 +62,14 @@ describe("Injection Context tests", () => {
 
       expect(mockAssert).toHaveBeenCalledWith(ClassOne.name);
       expect(mockAssert).toHaveBeenCalledWith(ClassTwo.name);
+      expect(mockAssert).toHaveBeenCalledWith(ClassThree.name);
+
       expect(ctx.resolve(ClassOne)).toBeDefined();
       expect(ctx.resolve(ClassOne)).toBeInstanceOf(ClassOne);
       expect(ctx.resolve(ClassTwo)).toBeDefined();
       expect(ctx.resolve(ClassTwo)).toBeInstanceOf(ClassTwo);
+      expect(ctx.resolve(ClassThree)).toBeDefined();
+      expect(ctx.resolve(ClassThree)).toBeInstanceOf(ClassThree);
     });
 
     it("Should do nothing when initialized", () => {
@@ -69,33 +82,36 @@ describe("Injection Context tests", () => {
   });
 
   describe("When context should be immediately initialized", () => {
-    let ctx: InjectionContext;
+    let ctx: InjectionContainer;
 
     beforeAll(() => {
-      ctx = new InjectionContext("Ctx1");
+      ctx = new InjectionContainer("Ctx1");
     });
 
     it("Should instantiate all classes", () => {
       expect(mockAssert).toHaveBeenCalledWith(ClassOne.name);
       expect(mockAssert).toHaveBeenCalledWith(ClassTwo.name);
+      expect(mockAssert).toHaveBeenCalledWith(ClassThree.name);
+
       expect(ctx.resolve(ClassOne)).toBeDefined();
       expect(ctx.resolve(ClassOne)).toBeInstanceOf(ClassOne);
       expect(ctx.resolve(ClassTwo)).toBeDefined();
       expect(ctx.resolve(ClassTwo)).toBeInstanceOf(ClassTwo);
-      expect(() => ctx.resolve(objectOne.token)).toThrow(
-        InjectableNotFoundError
-      );
-      expect(() => ctx.resolve(objectTwo.token)).toThrow(
-        InjectableNotFoundError
-      );
+
+      expect(ctx.resolve(ClassThree)).toBeUndefined();
+      expect(ctx.resolve(objectOne.token)).toBeUndefined();
+      expect(ctx.resolve(objectTwo.token)).toBeUndefined();
     });
 
     it("Should resolve objects after they've been registered", () => {
       ctx.register(objectOne, objectOne.token);
       ctx.register(objectTwo, objectTwo.token);
+      ctx.register(ClassThree);
 
       expect(ctx.resolve(objectOne.token)).toEqual(objectOne);
       expect(ctx.resolve(objectTwo.token)).toEqual(objectTwo);
+      expect(ctx.resolve(ClassThree)).toBeDefined();
+      expect(ctx.resolve(ClassThree)).toBeInstanceOf(ClassThree);
     });
 
     it("Should do nothing when initialized", () => {

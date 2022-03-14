@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { Autowire } from "../../src/annotations/autowire";
 import { Injectable } from "../../src/annotations/injectable";
-import { InjectionContext } from "../../src/injection-context";
+import { InjectionContainer } from "../../src/injection-container";
 
 const mockAssert = jest.fn();
 
@@ -23,10 +23,10 @@ class CtorInjectedClass {
 }
 
 describe("Constructor Injection tests", () => {
-  let ctx: InjectionContext;
+  let ctx: InjectionContainer;
 
   beforeAll(() => {
-    ctx = new InjectionContext("Ctx1");
+    ctx = new InjectionContainer("Ctx1");
   });
 
   it("Should resolve CtorInjectedClass", () => {
@@ -35,9 +35,7 @@ describe("Constructor Injection tests", () => {
   });
 
   it("Should inject InjectedClass into CtorInjectedClass", () => {
-    const _class = ctx.resolve(CtorInjectedClass);
-
-    _class.assert();
+    ctx.resolve(CtorInjectedClass)?.assert();
 
     expect(mockAssert).toBeCalledWith(CtorInjectedClass.name);
     expect(mockAssert).toBeCalledWith(InjectedClass.name);

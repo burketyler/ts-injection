@@ -43,7 +43,7 @@ export class Success<F, S> implements ThrowableInterface<F, S> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public successOrThrow(_: Error): S {
+  public successOrThrow(_?: Error): S {
     return this.value();
   }
 
@@ -88,8 +88,8 @@ export class Fail<F, S> implements ThrowableInterface<F, S> {
     return true;
   }
 
-  public successOrThrow(error: Error): S {
-    throw error;
+  public successOrThrow(error: Error | F = this.value()): S {
+    throw (error as Error) ?? this.value();
   }
 
   public value(): F {

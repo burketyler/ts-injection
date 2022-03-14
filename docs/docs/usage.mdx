@@ -1,0 +1,195 @@
+# Usage
+
+## Creating an Injection Container
+
+An `InjectionContainer` is an encapsulated DI environment where Injectables can be stored and retrieved
+Each container is initialized with a separate copy of every `@Injectable` class and objects registered
+to one container cannot be accessed by classes in another container.
+
+```typescript
+const container = new InjectionContainer();
+```
+
+A container will automatically initialize when created, instantiating every class that from the class
+registry. You can use the `isManualInit` option is provided in the configuration to change this behaviour.
+
+## Defining an injectable
+
+### Classes
+
+Use the `@Injectable` annotation to let the framework know that you intend for this class to be handled
+by the injection context. This means that it can be injected into other classes and that any injectable
+classes provided as newable arguments are automatically resolved.
+
+```typescript
+@Injectable()
+class ArnyService {
+  public getQuote(): string {
+    const quotes = [
+      "Hasta la vista, baby!",
+      "If it bleeds, we can kill it.",
+      "Come with me if you want to live.",
+    ];
+
+    return getRandomItem(quotes);
+  }
+}
+```
+
+### Injectable objects
+
+You may come across use cases where manually registering objects or classes in the DI container is
+required. In this scenario you can call the `register` method. An `InjectableItem` is returned including
+a unique token that can be used to reference the injectable in the future.
+
+```typescript
+const container = new InjectionContainer({
+  isManualInit: true,
+});
+
+const config: Config = {
+  isFeatureEnabled: true,
+};
+
+const { token: configToken } = container.register(config).successOrThrow();
+```
+
+:::warning
+
+If you intend to register injectables manually, make sure you choose to manually
+initialize your container, otherwise they may not be available in your classes.
+
+:::
+
+## Injecting dependencies
+
+### 🌾 Field injection
+
+The `ArnyService` class could instead be injected into the `ArnyQuoteApp` class,
+using field injection. The config object we manually injected can also be injected using its injection
+token.
+
+```typescript
+@Injectable
+export class ArnyQuoteApp {
+  @Autowire(ArnyService)
+  private service: ArnyService;
+
+  @Autowire(configToken)
+  private config: ConfigObject;
+
+  public tryGetQuote(): string | void {
+    if (this.config.isFeatureEnabled) {
+      return this.service.getQuote();
+    }
+  }
+}
+```
+
+### 🔨 Constructor injection
+
+The same can be achieved via constructor injection, which is the only injection type which
+allows access to the injectables inside the class constructor.
+
+```typescript
+@Injectable
+export class ArnyQuoteApp {
+  private readonly isEnabled: boolean;
+
+  constructor(
+    @Autowire(configToken)
+    private config: ConfigObject,
+    @Autowire(ArnyService)
+    private service: ArnyService
+  ) {
+    this.isEnabled = config.isFeatureEnabled;
+  }
+
+  public tryGetQuote(): string | void {
+    if (this.isEnabled) {
+      return this.service.getQuote();
+    }
+  }
+}
+```
+
+:::tip
+
+The `@Autowire` decorator isn't strictly required for classes that have been registered with
+the `@Injectable` decorator. The injection framework is smart enough to infer what should be injected by
+adding the class as a parameter.
+
+:::
+
+## Environment variables
+
+You can inject environment variables into class members using the `@Env` annotation.
+The framework will use the `type` of the `class member` to infer how to parse the value.
+Supported types are: `string`, `boolean`, `object`, `number`.
+You can also optionally pass a mapping function that will take in the string value and
+return the mapped value.
+
+```typescript
+process.env.CFG_STR = "test";
+process.env.CFG_NUM = "123";
+process.env.CFG_BOOL = "true";
+process.env.CFG_OBJ = '{"myObj": "hello"}';
+
+type MyObj = { myObj: string };
+
+function mapObj(val: string): MyObj {
+  const obj = JSON.parse(val);
+  obj.newVal = 123;
+  return obj;
+}
+
+export class App {
+  @Env("CFG_STR")
+  private myString: string;
+  @Env("CFG_NUM")
+  private myNumber: number;
+  @Env("CFG_BOOL")
+  private myBool: boolean;
+  @Env("CFG_OBJ")
+  private myObj: MyObj;
+  @Env<MyObj>("CFG_OBJ", mapObj)
+  private myMappedObj: MyObj;
+
+  newable() {
+    console.log(this.myString);
+    // "test"
+    console.log(this.myNumber);
+    // 123
+    console.log(this.myBool);
+    // true
+    console.log(this.myObj);
+    // {
+    //  myObj: "hello"
+    // }
+    console.log(this.myMappedObj);
+    // {
+    //  myObj: "hello",
+    //  newVal: 123
+    // }
+  }
+}
+```
+
+## Circular dependencies
+
+To automatically resolve dependencies, at the point of initializing, the framework will
+traverse the dependency tree until it finds a class that it can instantiate.
+
+If circular dependencies are detected, like in the scenario below, an error will be thrown.
+
+```typescript
+@Injectable
+export class MyService {
+  newable(private app: App) {}
+}
+
+@Injectable
+export class App {
+  newable(private service: MyService) {}
+}
+```

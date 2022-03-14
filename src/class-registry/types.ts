@@ -1,15 +1,6 @@
-import { Newable } from "../types";
-
-export class ClassNotFoundError extends Error {
-  constructor(message?: string) {
-    super(message);
-    this.name = "ClassNotFoundError";
-    Object.setPrototypeOf(this, ClassNotFoundError.prototype);
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
+import { ClassDef } from "../types";
 
 export interface ClassItem {
   id: string;
-  ctor: Newable;
+  Class: ClassDef;
 }

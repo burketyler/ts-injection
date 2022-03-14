@@ -8,8 +8,12 @@ export { Autowire } from "./src/annotations/autowire";
 export { Env, env, envRequired, envOptional } from "./src/annotations/env";
 export { Injectable, injectable } from "./src/annotations/injectable";
 export { Logger, LogLevel, LogNamespace } from "./src/logger";
-export { InjectionContext, RegisterOptions } from "./src/injection-context";
-export { InjectableRepo, InjectableNotFoundError } from "./src/injectable-repo";
+export {
+  InjectionContainer,
+  RegisterOptions,
+  InjectionContainerOptions,
+} from "./src/injection-container";
+export { InjectableRepo } from "./src/injectable-repo";
 export {
   InjectableItem,
   InjectionError,

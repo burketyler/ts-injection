@@ -1,6 +1,3 @@
-export const TAG_CLASS = "TSI_CLASS";
-export const TAG_OBJECT = "TSI_OBJECT";
-
 export const PARAM_LIST = Symbol("TSI_PARAM_LIST");
 export const AUTO_WIRE_LIST = Symbol("TSI_AUTO_WIRE_LIST");
 

@@ -1,17 +1,18 @@
 import { inspect } from "util";
 
+import { logLevelValueMap } from "./constants";
 import { LogLevel } from "./types";
 
 export function format(
-  namespace: string,
-  level: string,
+  ns: string,
+  level: LogLevel,
   msg: string,
   ...metadata: any[] // eslint-disable-line @typescript-eslint/no-explicit-any
 ): string {
   const payload: Record<string, unknown> = {
+    level: logLevelValueMap[level],
     time: Date.now(),
-    namespace,
-    level,
+    ns: `tsi:${ns.toLowerCase()}`,
     msg,
   };
 

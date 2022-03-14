@@ -1,10 +1,8 @@
-import { RegisterOptions } from "../injection-context";
+import { RegisterOptions } from "../injection-container";
 import { Logger, LogNamespace } from "../logger";
 import { fail, success, Throwable } from "../throwable";
 import { InjectableItem, Newable } from "../types";
 import { isNewable } from "../utils";
-
-import { InjectableNotFoundError } from "./types";
 
 export class InjectableRepo {
   private readonly items: InjectableItem<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -13,7 +11,6 @@ export class InjectableRepo {
 
   private tokenCursor: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor() {
     this.items = [];
     this.tokenCursor = 0;
@@ -22,31 +19,19 @@ export class InjectableRepo {
 
   public doesItemExist(token: string): boolean;
   public doesItemExist(ctor: Newable): boolean;
+  public doesItemExist(tokenOrCtor: string | Newable): boolean;
   public doesItemExist(tokenOrCtor: string | Newable): boolean {
-    const getResult = isNewable(tokenOrCtor)
-      ? this.getItem(tokenOrCtor)
-      : this.getItem(tokenOrCtor);
-
-    return getResult
-      .onSuccess(() => true)
-      .onError(() => false)
-      .output();
+    return !!this.getItem(tokenOrCtor);
   }
 
-  public getItem<ItemType>(
-    token: string
-  ): Throwable<InjectableNotFoundError, InjectableItem<ItemType>>;
-  public getItem<ItemType>(
-    ctor: Newable
-  ): Throwable<InjectableNotFoundError, InjectableItem<ItemType>>;
+  public getItem<ItemType>(token: string): InjectableItem<ItemType> | undefined;
+  public getItem<ItemType>(ctor: Newable): InjectableItem<ItemType> | undefined;
   public getItem<ItemType>(
     tokenOrCtor: string | Newable
-  ): Throwable<InjectableNotFoundError, InjectableItem<ItemType>> {
-    this.logger.debug(
-      "Getting item.",
-      isNewable(tokenOrCtor) ? tokenOrCtor.name : tokenOrCtor
-    );
-
+  ): InjectableItem<ItemType> | undefined;
+  public getItem<ItemType>(
+    tokenOrCtor: string | Newable
+  ): InjectableItem<ItemType> | undefined {
     const item = this.items.find(
       (inj) =>
         inj.instance.constructor === tokenOrCtor ||
@@ -54,23 +39,20 @@ export class InjectableRepo {
     );
 
     if (!item) {
-      return fail(
-        new InjectableNotFoundError(
-          `Item ${
-            isNewable(tokenOrCtor) ? tokenOrCtor.name : tokenOrCtor
-          } not found.`
-        )
-      );
+      this.logger.debug("Item not found.");
     }
 
-    return success(item);
+    return item;
   }
 
   public getItemsByTag<ItemType>(tag: string): InjectableItem<ItemType>[] {
     return this.items.filter((item) => item.tags?.some((_tag) => _tag === tag));
   }
 
-  public addTagsToItem(tokenOrCtor: string | Newable, ...tags: string[]): void {
+  public addTagsToItem(
+    tokenOrCtor: string | Newable,
+    ...tags: string[]
+  ): Throwable<"NOT_FOUND", void> {
     this.logger.debug(
       `Adding tags to item ${
         isNewable(tokenOrCtor) ? tokenOrCtor.name : tokenOrCtor
@@ -78,18 +60,16 @@ export class InjectableRepo {
       ...tags
     );
 
-    const getResult = isNewable(tokenOrCtor)
-      ? this.getItem(tokenOrCtor)
-      : this.getItem(tokenOrCtor);
+    const item = this.getItem(tokenOrCtor);
 
-    getResult
-      .onSuccess((item) => {
-        item.tags = item.tags ?? []; // eslint-disable-line no-param-reassign
-        item.tags.push(...tags);
-      })
-      .onError((error) => {
-        throw error;
-      });
+    if (!item) {
+      return fail("NOT_FOUND");
+    }
+
+    item.tags = item.tags ?? []; // eslint-disable-line no-param-reassign
+    item.tags.push(...tags);
+
+    return success(undefined);
   }
 
   public saveItem<ItemType>(
@@ -99,34 +79,31 @@ export class InjectableRepo {
   ): InjectableItem<ItemType> {
     this.logger.info("Saving injectable in context.");
 
-    const getResult = token
+    const existingItem = token
       ? this.getItem<ItemType>(token)
       : this.getItem<ItemType>(injectable as unknown as Newable);
 
-    return getResult
-      .onSuccess((existingItem) => {
-        this.logger.debug("Existing instance found, updating existing item.");
+    if (existingItem) {
+      this.logger.debug("Existing instance found, updating existing item.");
 
-        return this.replaceItem(
-          {
-            ...existingItem,
-            ...options,
-            token: existingItem.token,
-            instance: injectable,
-          },
-          existingItem
-        );
-      })
-      .onError(() => {
-        this.logger.debug("No instance found, creating new item.");
-
-        return this.addItem({
+      return this.replaceItem(
+        {
+          ...existingItem,
           ...options,
-          token: this.createToken(token ?? this.getNextCursor()),
+          token: existingItem.token,
           instance: injectable,
-        });
-      })
-      .output() as InjectableItem<ItemType>;
+        },
+        existingItem
+      ) as InjectableItem<ItemType>;
+    }
+
+    this.logger.debug("No instance found, creating new item.");
+
+    return this.addItem({
+      ...options,
+      token: this.createToken(token ?? this.getNextCursor()),
+      instance: injectable,
+    }) as InjectableItem<ItemType>;
   }
 
   private addItem(item: InjectableItem<unknown>): InjectableItem<unknown> {

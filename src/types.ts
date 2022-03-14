@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { AUTO_WIRE_LIST, PARAM_LIST } from "./constants";
 
 export class InjectionError extends Error {
@@ -10,23 +12,34 @@ export class InjectionError extends Error {
 }
 
 export interface Newable {
-  new (...args: any[]): any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  [PARAM_LIST]?: {
-    [paramIndex: number]: string;
-  };
-  constructor: {
-    prototype: Proto;
-  } & Omit<Function, "prototype">; // eslint-disable-line @typescript-eslint/ban-types
+  new (...args: any[]): any;
 }
 
 export interface Proto {
   constructor: Function; // eslint-disable-line @typescript-eslint/ban-types
+  [AUTO_WIRE_LIST]?: {
+    [fieldName: string]: string;
+  };
+}
+
+export interface InjectableProto extends Proto {
   [AUTO_WIRE_LIST]: {
     [fieldName: string]: string;
   };
 }
 
+export interface ClassDef extends Newable {
+  name: string;
+  constructor: {
+    prototype: Proto;
+  } & any;
+}
+
 export interface InjectableClass extends Newable {
+  constructor: {
+    name: string;
+    prototype: Proto;
+  };
   [PARAM_LIST]: {
     [paramIndex: number]: string;
   };
@@ -47,4 +60,9 @@ export enum ClassMetadata {
   PARAMS = "design:paramtypes",
   CLASS_ID = "tsi:id",
   OPTIONS = "tsi:options",
+}
+
+export enum InjectableTag {
+  CLASS = "TSI_CLASS",
+  OBJECT = "TSI_OBJECT",
 }

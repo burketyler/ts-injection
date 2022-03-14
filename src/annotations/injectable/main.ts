@@ -1,8 +1,7 @@
 import { ClassRegistry } from "../../class-registry";
-import { TAG_CLASS } from "../../constants";
-import { RegisterOptions } from "../../injection-context";
+import { RegisterOptions } from "../../injection-container";
 import { Logger, LogNamespace } from "../../logger";
-import { ClassMetadata, Newable } from "../../types";
+import { ClassMetadata, InjectableTag, Newable } from "../../types";
 
 const logger = new Logger(LogNamespace.INJECTABLE);
 
@@ -10,7 +9,7 @@ export function injectable<ClassType extends Newable>(
   ctor: ClassType,
   options: Partial<RegisterOptions> = {}
 ) {
-  return Injectable(options);
+  return Injectable(options)(ctor);
 }
 
 export function Injectable<ClassType extends Newable>(
@@ -19,16 +18,16 @@ export function Injectable<ClassType extends Newable>(
   return (ctor: ClassType): void => {
     logger.info(`Detected Injectable class ${ctor.name}.`);
 
-    const { id } = ClassRegistry.register(ctor);
+    const { id } = ClassRegistry.add(ctor);
 
     if (!options.tags) {
       // eslint-disable-next-line no-param-reassign
-      options.tags = [TAG_CLASS];
+      options.tags = [InjectableTag.CLASS];
     }
 
     Reflect.defineMetadata(
       ClassMetadata.OPTIONS,
-      options ?? { tags: [TAG_CLASS] },
+      options ?? { tags: [InjectableTag.CLASS] },
       ctor
     );
     Reflect.defineMetadata(ClassMetadata.CLASS_ID, id, ctor);

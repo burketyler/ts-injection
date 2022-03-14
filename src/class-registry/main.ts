@@ -1,8 +1,7 @@
 import { Logger, LogNamespace } from "../logger";
-import { success, fail, Throwable } from "../throwable";
-import { Newable } from "../types";
+import { ClassDef, Newable } from "../types";
 
-import { ClassItem, ClassNotFoundError } from "./types";
+import { ClassItem } from "./types";
 
 export class ClassRegistry {
   private static readonly logger = new Logger(LogNamespace.CLASS_REGISTRY);
@@ -11,10 +10,10 @@ export class ClassRegistry {
 
   private static idCursor = 0;
 
-  public static register(ctor: Newable): ClassItem {
-    this.logger.info(`Registering class ${ctor.name}.`);
+  public static add(Class: Newable): ClassItem {
+    this.logger.info(`Adding class ${Class.name}.`);
 
-    const newItem = { ctor, id: this.getNextId() };
+    const newItem = { Class, id: this.getNextId() };
     this.items.push(newItem);
 
     return newItem;
@@ -24,20 +23,12 @@ export class ClassRegistry {
     return this.items;
   }
 
-  public static get(ctor: Newable): Throwable<ClassNotFoundError, ClassItem> {
-    const foundItem = this.items.find((item) => item.ctor === ctor);
-
-    return foundItem ? success(foundItem) : fail(new ClassNotFoundError());
+  public static get(Class: ClassDef): ClassItem | undefined {
+    return this.items.find((item) => item.Class === Class);
   }
 
-  public static getById(id: string): Throwable<ClassNotFoundError, ClassItem> {
-    const foundItem = this.items.find((item) => item.id === id);
-
-    if (!foundItem) {
-      return fail(new ClassNotFoundError(`Class ${id} not found.`));
-    }
-
-    return success(foundItem);
+  public static getById(id: string): ClassItem | undefined {
+    return this.items.find((item) => item.id === id);
   }
 
   private static getNextId(): string {
