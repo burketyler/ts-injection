@@ -1,3 +1,19 @@
+# [3.0.0](https://github.com/burketyler/ts-injection/compare/v2.0.2...v3.0.0) (2022-03-14)
+
+
+### Features
+
+* version 3 ([#8](https://github.com/burketyler/ts-injection/issues/8)) ([b04ebd7](https://github.com/burketyler/ts-injection/commit/b04ebd700fc0075aa46ddfd3d99a3436ed9643c9))
+
+
+### BREAKING CHANGES
+
+* most things, unfortunately
+
+* fix: v3 functional fixes, test, docs
+
+* ci: enable unit tests in ci
+
 ## [2.0.2](https://github.com/burketyler/ts-injection/compare/v2.0.1...v2.0.2) (2022-01-06)
 
 
