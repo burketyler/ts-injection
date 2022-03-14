@@ -1,8 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require("prism-react-renderer/themes/github");
-const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const lightCodeTheme = require("prism-react-renderer/themes/oceanicNext");
+const darkCodeTheme = require("prism-react-renderer/themes/vsDark");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -23,8 +23,8 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          // Please change this to your repo.
           editUrl: "https://github.com/burketyler/ts-injection",
+          sidebarPath: require.resolve("./sidebar.js"),
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -70,14 +70,6 @@ const config = {
                 label: "Usage",
                 to: "/docs/usage",
               },
-              {
-                label: "API Reference",
-                to: "/docs/api-reference",
-              },
-              {
-                label: "Caveats",
-                to: "/docs/caveats",
-              },
             ],
           },
           {
@@ -94,7 +86,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Wirt's Legs Pty Ltd.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Wirt's Leg Pty Ltd.`,
       },
       prism: {
         theme: lightCodeTheme,

@@ -1,0 +1,14 @@
+{
+  "root": false,
+  "parserOptions": {
+    "project": "../tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/dot-notation": "off",
+    "no-underscore-dangle": "off",
+    "import/no-internal-modules": "off",
+    "max-classes-per-file": "off"
+  }
+}

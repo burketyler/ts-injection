@@ -1,0 +1,1 @@
+export { ClassRegistry } from "./main";

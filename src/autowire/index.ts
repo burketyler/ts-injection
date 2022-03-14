@@ -1,1 +1,0 @@
-export { Autowire } from "./main";
