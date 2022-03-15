@@ -2,16 +2,20 @@
 
 ## Creating an Injection Container
 
-An `InjectionContainer` is an encapsulated DI environment where Injectables can be stored and retrieved
-Each container is initialized with a separate copy of every `@Injectable` class and objects registered
+An `InjectionContainer` is an encapsulated DI environment where Injectables can be stored and retrieved.
+Each container is initialized with it's `@Injectable` class instances. Objects registered
 to one container cannot be accessed by classes in another container.
 
 ```typescript
 const container = new InjectionContainer();
 ```
 
-A container will automatically initialize when created, instantiating every class that from the class
-registry. You can use the `isManualInit` option is provided in the configuration to change this behaviour.
+:::tip
+
+A container will automatically initialize (instantiate all classes) when created unless the `isManualInit`
+option is specified when creating the instance.
+
+:::
 
 ## Defining an injectable
 
@@ -19,7 +23,7 @@ registry. You can use the `isManualInit` option is provided in the configuration
 
 Use the `@Injectable` annotation to let the framework know that you intend for this class to be handled
 by the injection context. This means that it can be injected into other classes and that any injectable
-classes provided as newable arguments are automatically resolved.
+classes provided as newable arguments are automatically injected.
 
 ```typescript
 @Injectable()
@@ -38,9 +42,10 @@ class ArnyService {
 
 ### Injectable objects
 
-You may come across use cases where manually registering objects or classes in the DI container is
-required. In this scenario you can call the `register` method. An `InjectableItem` is returned including
-a unique token that can be used to reference the injectable in the future.
+Some use cases may require manually registering objects or classes in the DI container.
+This can be achieved using the `register` method. An `InjectableItem` is returned upon
+successfully registering an injectable, including a unique token that is used to as it's
+unique identifier when injecting.
 
 ```typescript
 const container = new InjectionContainer({
@@ -56,18 +61,19 @@ const { token: configToken } = container.register(config).successOrThrow();
 
 :::warning
 
-If you intend to register injectables manually, make sure you choose to manually
-initialize your container, otherwise they may not be available in your classes.
+If you intend to register injectables manually, make sure to manually
+initialize your container, otherwise they may not be available in classes
+during instantiation.
 
 :::
 
 ## Injecting dependencies
 
-### 🌾 Field injection
+### 🌾 Field Injection
 
-The `ArnyService` class could instead be injected into the `ArnyQuoteApp` class,
-using field injection. The config object we manually injected can also be injected using its injection
-token.
+The `ArnyService` class from the above example can be injected into the `ArnyQuoteApp`
+class using field injection as per the snippet below. Manually registered injectables
+can also be injected by supplying their tokens.
 
 ```typescript
 @Injectable
@@ -86,10 +92,10 @@ export class ArnyQuoteApp {
 }
 ```
 
-### 🔨 Constructor injection
+### 🔨 Constructor Injection
 
-The same can be achieved via constructor injection, which is the only injection type which
-allows access to the injectables inside the class constructor.
+The example above can also be achieved using constructor injection, which is the
+only injection type which allows access to the injectables inside the class constructor.
 
 ```typescript
 @Injectable
@@ -116,17 +122,17 @@ export class ArnyQuoteApp {
 :::tip
 
 The `@Autowire` decorator isn't strictly required for classes that have been registered with
-the `@Injectable` decorator. The injection framework is smart enough to infer what should be injected by
-adding the class as a parameter.
+the `@Injectable` decorator. The injection framework is smart enough to infer what should be
+injected by adding the class as a parameter.
 
 :::
 
 ## Environment variables
 
-You can inject environment variables into class members using the `@Env` annotation.
+Environment variables can be injected into class members using the `@Env` annotation.
 The framework will use the `type` of the `class member` to infer how to parse the value.
 Supported types are: `string`, `boolean`, `object`, `number`.
-You can also optionally pass a mapping function that will take in the string value and
+Mapping functions can be optionally provided that take the string value as an argument and
 return the mapped value.
 
 ```typescript
@@ -177,19 +183,30 @@ export class App {
 
 ## Circular dependencies
 
-To automatically resolve dependencies, at the point of initializing, the framework will
-traverse the dependency tree until it finds a class that it can instantiate.
-
-If circular dependencies are detected, like in the scenario below, an error will be thrown.
+In order to resolve dependencies, the framework will traverse the dependency tree until it
+finds a class it can instantiate. If circular dependencies are detected (like in the scenario
+below) the framework won't be able to traverse the tree correctly; this will result in
+an error.
 
 ```typescript
 @Injectable
-export class MyService {
-  newable(private app: App) {}
+export class ServiceOne {
+  constructor(private service: ServiceTwo) {}
 }
 
 @Injectable
-export class App {
-  newable(private service: MyService) {}
+export class ServiceTwo {
+  constructor(private service: ServiceOne) {}
+}
+```
+
+In most cases, circular dependencies are indicative of a flaw in application design. The
+intention of the above code be accomplished by creating a higher order class that contains
+both dependencies instead.
+
+```typescript
+@Injectable
+export class HigherOrderService {
+  constructor(private service: ServiceOne, private serviceTwo: ServiceTwo) {}
 }
 ```

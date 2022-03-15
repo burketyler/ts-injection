@@ -1,0 +1,35 @@
+# Debugging
+
+Debugging dependency injection can be difficult. Timing and execution order is
+particularly important in understanding how an app using ts-injection is working
+and in effectively troubleshooting issues.
+
+Enable detailed logging using the `TSI_DEBUG` environment variable.
+
+```shell
+ts-node TSI_DEBUG=* myapp.ts
+```
+
+```typescript
+process.env.TSI_DEBUG = "*";
+```
+
+## Namespaces
+
+Debug logging can also be noisy. Logging in ts-injection uses namespaces to allow
+fine-grained control over which log you need to see.
+
+- autowire
+- injection_container
+- class_registry
+- injectable_repo
+- injectable
+- env
+
+```shell
+ts-node TSI_DEBUG=autowire=*,injection_container=info
+```
+
+```typescript
+process.env.TSI_DEBUG = "autowire=*,injection_container=info";
+```
