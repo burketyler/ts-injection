@@ -10,5 +10,10 @@ module.exports = {
       label: "Usage",
       id: "usage",
     },
+    {
+      type: "doc",
+      label: "Debugging",
+      id: "debugging",
+    },
   ],
 };
