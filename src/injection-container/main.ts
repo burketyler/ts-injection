@@ -42,7 +42,7 @@ export class InjectionContainer {
       this.name = generateInstanceName();
     }
 
-    this.logger = new Logger(LogNamespace.INJECTION_CONTEXT);
+    this.logger = new Logger(LogNamespace.INJECTION_CONTAINER);
     this.repo = new InjectableRepo();
     this.isInitialized = false;
     this.logger.info(`Creating new InjectionContext: ${this.name}.`);

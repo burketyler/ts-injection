@@ -23,7 +23,6 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          editUrl: "https://github.com/burketyler/ts-injection",
           sidebarPath: require.resolve("./sidebar.js"),
         },
         theme: {
