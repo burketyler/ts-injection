@@ -127,6 +127,19 @@ injected by adding the class as a parameter.
 
 :::
 
+## Resolving a class
+
+Use the `resolve` method on an `InjectionContainer` to get an instantiated version of your
+injectable class.
+
+```typescript
+const container = new InjectionContainer();
+
+const app = container.resolve(ArnyQuoteApp);
+
+app.tryGetQuote().then((quote) => console.log(quote));
+```
+
 ## Environment variables
 
 Environment variables can be injected into class members using the `@Env` annotation.
