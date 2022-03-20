@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { ClassRegistry } from "../class-registry";
-import { AUTO_WIRE_LIST, ERROR_LINK_CIRC_DEP } from "../constants";
+import { AUTO_WIRE_LIST } from "../constants";
 import { InjectableRepo } from "../injectable-repo";
 import { Logger, LogNamespace } from "../logger";
 import { fail, success, Throwable } from "../throwable";
@@ -234,8 +234,7 @@ export class InjectionContainer {
 
       if (depCtor === undefined) {
         this.logger.error(
-          "Circular dependency detected, cannot instantiate dependency.",
-          { read_more: ERROR_LINK_CIRC_DEP }
+          "Circular dependency detected, cannot instantiate dependency."
         );
 
         return fail(new InjectionError("Circular dependency detected."));

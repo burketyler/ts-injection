@@ -8,6 +8,3 @@ export const PRIMITIVE_TYPES = {
   ARRAY: [].constructor,
   BOOLEAN: true.constructor,
 };
-
-export const ERROR_LINK_CIRC_DEP =
-  "https://burketyler.github.io/ts-injection/docs/caveats#circular-dependencies";
