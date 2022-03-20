@@ -1,3 +1,11 @@
+## [3.0.2](https://github.com/burketyler/ts-injection/compare/v3.0.1...v3.0.2) (2022-03-20)
+
+
+### Bug Fixes
+
+* dont bundle .d.ts map ([35b42c5](https://github.com/burketyler/ts-injection/commit/35b42c54d7905dc149de71000a08e72334df6b52))
+* fix: dont bundle .d.ts map ([9c9f2f8](https://github.com/burketyler/ts-injection/commit/9c9f2f8938a857ecd025e9e6b65339399c242d18))
+
 ## [3.0.1](https://github.com/burketyler/ts-injection/compare/v3.0.0...v3.0.1) (2022-03-20)
 
 
