@@ -1,3 +1,11 @@
+## [3.0.1](https://github.com/burketyler/ts-injection/compare/v3.0.0...v3.0.1) (2022-03-20)
+
+
+### Bug Fixes
+
+* bump version ([7e950af](https://github.com/burketyler/ts-injection/commit/7e950af24b818bd3386e6ca8cf5002fa6afb6cbb))
+* **InjectionContainer:** remove incorrect error link ([9d607b9](https://github.com/burketyler/ts-injection/commit/9d607b9c60f9f1ce1161fcbe2993ebc7c9161284))
+
 # [3.0.0](https://github.com/burketyler/ts-injection/compare/v2.0.2...v3.0.0) (2022-03-14)
 
 
