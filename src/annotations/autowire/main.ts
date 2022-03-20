@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-
 import { AUTO_WIRE_LIST, PARAM_LIST } from "../../constants";
 import { Logger, LogNamespace } from "../../logger";
 import {
@@ -55,8 +53,10 @@ function handleFieldInjection(
     `Binding injectable ${tokenOrClassId} to property '${fieldName}'.`
   );
 
+  /* eslint-disable no-param-reassign */
   proto[AUTO_WIRE_LIST] = proto[AUTO_WIRE_LIST] ?? {};
   proto[AUTO_WIRE_LIST][fieldName] = tokenOrClassId;
+  /* eslint-enable no-param-reassign */
 }
 
 function handleConstructorInjection(
@@ -74,8 +74,10 @@ function handleConstructorInjection(
     `Binding injectable ${tokenOrClassId} to constructor at index ${index}.`
   );
 
+  /* eslint-disable no-param-reassign */
   Class[PARAM_LIST] = Class[PARAM_LIST] ?? {};
   (Class as InjectableClass)[PARAM_LIST][index] = tokenOrClassId;
+  /* eslint-enable no-param-reassign */
 }
 
 function getClassId(classCtor: Newable): string {
