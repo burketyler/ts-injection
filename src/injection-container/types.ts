@@ -5,5 +5,6 @@ export type RegisterOptions = Omit<InjectableOptions, "token"> & {
 };
 
 export interface InjectionContainerOptions {
-  isManualInit?: boolean;
+  isManualInit: boolean;
+  shouldThrowOnNotFound: boolean;
 }

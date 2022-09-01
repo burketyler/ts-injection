@@ -33,17 +33,11 @@ export class InjectableRepo {
   public getItem<ItemType>(
     tokenOrCtor: string | Newable
   ): InjectableItem<ItemType> | undefined {
-    const item = this.items.find(
+    return this.items.find(
       (inj) =>
         inj.instance.constructor === tokenOrCtor ||
         inj.token === this.createToken(tokenOrCtor as string)
     );
-
-    if (!item) {
-      this.logger.debug("Item not found.");
-    }
-
-    return item;
   }
 
   public getItemsByTag<ItemType>(tag: string): InjectableItem<ItemType>[] {

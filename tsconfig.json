@@ -70,6 +70,5 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
     "types": ["node", "jest"]
   },
-  "include": ["index.ts", "src", "tests"],
-  "exclude": ["tests"]
+  "include": ["index.ts", "src"],
 }

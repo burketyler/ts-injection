@@ -16,6 +16,7 @@ import {
 } from "../types";
 import { isClassDef, isNewable } from "../utils";
 
+import { DEFAULT_CONFIG } from "./constants";
 import { InjectionContainerOptions, RegisterOptions } from "./types";
 import { generateInstanceName } from "./utils";
 
@@ -28,17 +29,21 @@ export class InjectionContainer {
 
   private isInitialized: boolean;
 
+  private config: InjectionContainerOptions;
+
   constructor();
   constructor(name: string);
   constructor(options: InjectionContainerOptions);
   constructor(name: string, options?: InjectionContainerOptions);
   constructor(
-    nameOrOptions?: string | InjectionContainerOptions,
+    nameOrOptions?: string | Partial<InjectionContainerOptions>,
     options?: InjectionContainerOptions
   ) {
     if (typeof nameOrOptions === "string") {
       this.name = nameOrOptions;
+      this.config = DEFAULT_CONFIG;
     } else {
+      this.config = { ...DEFAULT_CONFIG, ...nameOrOptions };
       this.name = generateInstanceName();
     }
 
@@ -126,23 +131,28 @@ export class InjectionContainer {
     }
   }
 
-  public resolve<InjectableType>(token: string): InjectableType | undefined;
+  public resolve<InjectableType>(token: string): InjectableType;
   public resolve<ClassType extends Newable>(
     ctor: ClassType
-  ): InstanceType<ClassType> | undefined;
+  ): InstanceType<ClassType>;
   public resolve<InjectableType extends Newable>(
     tokenOrClass: string | InjectableType
-  ): InjectableType | undefined {
-    this.logger.info(
-      "Resolving injectable.",
-      isClassDef(tokenOrClass) ? tokenOrClass.name : tokenOrClass
-    );
+  ): InjectableType {
+    const token = isClassDef(tokenOrClass) ? tokenOrClass.name : tokenOrClass;
+
+    this.logger.info("Resolving injectable.", token);
 
     if (!this.isInitialized) {
       this.logger.warn("Context has no items, have you initialized?");
     }
 
-    return this.repo.getItem(tokenOrClass)?.instance as InjectableType;
+    const item = this.repo.getItem(tokenOrClass)?.instance as InjectableType;
+
+    if (!item && this) {
+      throw new Error(`Injectable ${token} not found.`);
+    }
+
+    return item;
   }
 
   private registerObject(
