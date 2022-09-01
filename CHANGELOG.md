@@ -1,3 +1,15 @@
+# [3.1.0](https://github.com/burketyler/ts-injection/compare/v3.0.2...v3.1.0) (2022-09-01)
+
+
+### Bug Fixes
+
+* broken conditional ([47c9a58](https://github.com/burketyler/ts-injection/commit/47c9a584b689a9b1a1b606bafd9bf3bd01437816))
+
+
+### Features
+
+* allow throw on injectable not found to be configurable ([63e82bb](https://github.com/burketyler/ts-injection/commit/63e82bb05ad036b6a68ae9f8a3bee0ec7462767c))
+
 ## [3.0.2](https://github.com/burketyler/ts-injection/compare/v3.0.1...v3.0.2) (2022-03-20)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "ts-injection",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Dependency injection framework for Typescript/Javascript NodeJS applications.",
   "keywords": [
     "typescript",
