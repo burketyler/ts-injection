@@ -34,11 +34,34 @@ class ClassThree {
 }
 
 describe("Injection Context tests", () => {
+  describe("When error should throw on not found injectable", () => {
+    let ctx: InjectionContainer;
+
+    beforeAll(() => {
+      ctx = new InjectionContainer("Ctx1");
+    });
+
+    afterAll(() => {
+      jest.resetAllMocks();
+    });
+
+    it("Should throw when class is resolved", () => {
+      expect(() => ctx.resolve(ClassThree)).toThrowError(
+        expect.objectContaining({
+          message: expect.stringMatching(/.*not found.*/),
+        })
+      );
+    });
+  });
+
   describe("When context should be manually initialized", () => {
     let ctx: InjectionContainer;
 
     beforeAll(() => {
-      ctx = new InjectionContainer("Ctx1", { isManualInit: true });
+      ctx = new InjectionContainer("Ctx1", {
+        isManualInit: true,
+        shouldThrowOnNotFound: false,
+      });
       ctx.register(objectOne, objectOne.token);
       ctx.register(objectTwo, objectTwo.token);
       ctx.register(ClassThree);
@@ -85,7 +108,7 @@ describe("Injection Context tests", () => {
     let ctx: InjectionContainer;
 
     beforeAll(() => {
-      ctx = new InjectionContainer("Ctx1");
+      ctx = new InjectionContainer("Ctx1", { shouldThrowOnNotFound: false });
     });
 
     it("Should instantiate all classes", () => {

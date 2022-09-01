@@ -34,16 +34,16 @@ export class InjectionContainer {
   constructor();
   constructor(name: string);
   constructor(options: InjectionContainerOptions);
-  constructor(name: string, options?: InjectionContainerOptions);
+  constructor(name: string, options?: Partial<InjectionContainerOptions>);
   constructor(
     nameOrOptions?: string | Partial<InjectionContainerOptions>,
     options?: InjectionContainerOptions
   ) {
     if (typeof nameOrOptions === "string") {
       this.name = nameOrOptions;
-      this.config = DEFAULT_CONFIG;
+      this.config = this.mergeConfig(options);
     } else {
-      this.config = { ...DEFAULT_CONFIG, ...nameOrOptions };
+      this.config = this.mergeConfig(nameOrOptions);
       this.name = generateInstanceName();
     }
 
@@ -148,11 +148,17 @@ export class InjectionContainer {
 
     const item = this.repo.getItem(tokenOrClass)?.instance as InjectableType;
 
-    if (!item && this) {
+    if (!item && this.config.shouldThrowOnNotFound) {
       throw new Error(`Injectable ${token} not found.`);
     }
 
     return item;
+  }
+
+  private mergeConfig(
+    options: Partial<InjectionContainerOptions> | undefined
+  ): InjectionContainerOptions {
+    return { ...DEFAULT_CONFIG, ...options };
   }
 
   private registerObject(
