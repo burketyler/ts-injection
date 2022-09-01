@@ -12,7 +12,7 @@ export function format(
   const payload: Record<string, unknown> = {
     level: logLevelValueMap[level],
     time: Date.now(),
-    ns: `tsi:${ns.toLowerCase()}`,
+    ns: ns.toLowerCase(),
     msg,
   };
 

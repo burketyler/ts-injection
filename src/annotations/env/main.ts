@@ -1,9 +1,9 @@
-import { PRIMITIVE_TYPES } from "../../constants";
+import { PRIMITIVE_TYPES, TSI_LOG_KEY } from "../../constants";
 import { Logger, LogNamespace, LogLevel } from "../../logger";
 
 import { EnvironmentVariableError, EnvVarOptions } from "./types";
 
-const logger = new Logger(LogNamespace.ENV);
+const logger = new Logger(LogNamespace.ENV, TSI_LOG_KEY);
 
 export function Env<VariableType>(
   varName: string,

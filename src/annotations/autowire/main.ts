@@ -1,4 +1,4 @@
-import { AUTO_WIRE_LIST, PARAM_LIST } from "../../constants";
+import { AUTO_WIRE_LIST, PARAM_LIST, TSI_LOG_KEY } from "../../constants";
 import { Logger, LogNamespace } from "../../logger";
 import {
   ClassMetadata,
@@ -10,7 +10,7 @@ import {
 
 import { AutowireError } from "./types";
 
-const logger = new Logger(LogNamespace.AUTOWIRE);
+const logger = new Logger(LogNamespace.AUTOWIRE, TSI_LOG_KEY);
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function autowire(token: string): any;

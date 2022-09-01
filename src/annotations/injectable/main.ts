@@ -1,9 +1,10 @@
 import { ClassRegistry } from "../../class-registry";
+import { TSI_LOG_KEY } from "../../constants";
 import { RegisterOptions } from "../../injection-container";
 import { Logger, LogNamespace } from "../../logger";
 import { ClassMetadata, InjectableTag, Newable } from "../../types";
 
-const logger = new Logger(LogNamespace.INJECTABLE);
+const logger = new Logger(LogNamespace.INJECTABLE, TSI_LOG_KEY);
 
 export function injectable<ClassType extends Newable>(
   ctor: ClassType,

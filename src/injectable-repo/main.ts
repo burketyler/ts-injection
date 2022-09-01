@@ -1,3 +1,4 @@
+import { TSI_LOG_KEY } from "../constants";
 import { RegisterOptions } from "../injection-container";
 import { Logger, LogNamespace } from "../logger";
 import { fail, success, Throwable } from "../throwable";
@@ -14,7 +15,7 @@ export class InjectableRepo {
   constructor() {
     this.items = [];
     this.tokenCursor = 0;
-    this.logger = new Logger(LogNamespace.INJECTABLE_REPO);
+    this.logger = new Logger(LogNamespace.INJECTABLE_REPO, TSI_LOG_KEY);
   }
 
   public doesItemExist(token: string): boolean;

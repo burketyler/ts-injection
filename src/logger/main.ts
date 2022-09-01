@@ -10,7 +10,7 @@ export class Logger {
 
   constructor(
     private readonly namespace: string,
-    private readonly envKey: string = "TSI_DEBUG"
+    private readonly envKey: string
   ) {
     const { level, isEnabled } = this.parseNamespace();
 
@@ -62,9 +62,9 @@ export class Logger {
   }
 
   private parseNamespace(): { isEnabled: boolean; level: LogLevel } {
-    const tsiLog = process.env[this.envKey];
+    const logEnvVar = process.env[this.envKey];
 
-    if (tsiLog === "*") {
+    if (logEnvVar === "*") {
       return { isEnabled: true, level: LogLevel.ALL };
     }
 

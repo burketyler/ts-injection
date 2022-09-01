@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { ClassRegistry } from "../class-registry";
-import { AUTO_WIRE_LIST } from "../constants";
+import { AUTO_WIRE_LIST, TSI_LOG_KEY } from "../constants";
 import { InjectableRepo } from "../injectable-repo";
 import { Logger, LogNamespace } from "../logger";
 import { fail, success, Throwable } from "../throwable";
@@ -42,7 +42,7 @@ export class InjectionContainer {
       this.name = generateInstanceName();
     }
 
-    this.logger = new Logger(LogNamespace.INJECTION_CONTAINER);
+    this.logger = new Logger(LogNamespace.INJECTION_CONTAINER, TSI_LOG_KEY);
     this.repo = new InjectableRepo();
     this.isInitialized = false;
     this.logger.info(`Creating new InjectionContext: ${this.name}.`);

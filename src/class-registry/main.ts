@@ -1,10 +1,14 @@
+import { TSI_LOG_KEY } from "../constants";
 import { Logger, LogNamespace } from "../logger";
 import { ClassDef, Newable } from "../types";
 
 import { ClassItem } from "./types";
 
 export class ClassRegistry {
-  private static readonly logger = new Logger(LogNamespace.CLASS_REGISTRY);
+  private static readonly logger = new Logger(
+    LogNamespace.CLASS_REGISTRY,
+    TSI_LOG_KEY
+  );
 
   private static readonly items: ClassItem[] = [];
 
