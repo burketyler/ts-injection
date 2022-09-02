@@ -1,3 +1,15 @@
+## [3.1.1](https://github.com/burketyler/ts-injection/compare/v3.1.0...v3.1.1) (2022-09-02)
+
+
+### Bug Fixes
+
+* incorrect env var name ([03d1ba7](https://github.com/burketyler/ts-injection/commit/03d1ba7ce9b36b21b5f2ed008a227721cfaf4518))
+
+
+### Reverts
+
+* inadvertent class name change ([181b8f7](https://github.com/burketyler/ts-injection/commit/181b8f7b7a8e0a5f5d51e6ce8c07f44243dcfc78))
+
 # [3.1.0](https://github.com/burketyler/ts-injection/compare/v3.0.2...v3.1.0) (2022-09-01)
 
 
