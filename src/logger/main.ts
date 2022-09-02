@@ -1,44 +1,48 @@
 /* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 
-import { LogLevel } from "./types";
+import { ILogger, LogLevel } from "./types";
 import { format, parseLogLvl } from "./utils";
 
-export class Logger {
+export class Logger implements ILogger {
   private readonly isEnabled: boolean;
+
+  private readonly instance: ILogger;
 
   private readonly level: LogLevel;
 
   constructor(
     private readonly namespace: string,
-    private readonly envKey: string
+    private readonly envKey: string,
+    instance?: ILogger
   ) {
     const { level, isEnabled } = this.parseNamespace();
 
     this.isEnabled = isEnabled;
     this.level = level;
+    this.instance = instance ?? console;
   }
 
   public debug(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
-      console.debug(format(this.namespace, LogLevel.DEBUG, msg, ...meta));
+      this.instance.debug(format(this.namespace, LogLevel.DEBUG, msg, ...meta));
     }
   }
 
   public info(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.INFO)) {
-      console.info(format(this.namespace, LogLevel.INFO, msg, ...meta));
+      this.instance.info(format(this.namespace, LogLevel.INFO, msg, ...meta));
     }
   }
 
   public warn(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.WARN)) {
-      console.warn(format(this.namespace, LogLevel.WARN, msg, ...meta));
+      this.instance.warn(format(this.namespace, LogLevel.WARN, msg, ...meta));
     }
   }
 
   public error(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.ERROR)) {
-      console.error(format(this.namespace, LogLevel.ERROR, msg, ...meta));
+      this.instance.error(format(this.namespace, LogLevel.ERROR, msg, ...meta));
     }
   }
 

@@ -14,3 +14,13 @@ export enum LogNamespace {
   INJECTABLE = "INJECTABLE",
   ENV = "ENV",
 }
+
+export interface ILogger {
+  debug: LogFunction;
+  info: LogFunction;
+  warn: LogFunction;
+  error: LogFunction;
+  log?: (level: LogLevel, msg: string, ...meta: any[]) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export type LogFunction = (msg: string, ...meta: any[]) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
