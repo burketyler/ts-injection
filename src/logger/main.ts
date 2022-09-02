@@ -71,7 +71,7 @@ export class Logger {
     let level = LogLevel.ALL;
     let isEnabled = false;
 
-    process.env.TSI_DEBUG?.split(",").forEach((namespace) => {
+    logEnvVar?.split(",").forEach((namespace) => {
       const [name, logLvl] = namespace.split("=");
 
       if (name.toLowerCase() === this.namespace.toLowerCase() || name === "*") {
