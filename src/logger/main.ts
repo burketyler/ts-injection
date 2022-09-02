@@ -6,43 +6,56 @@ import { format, parseLogLvl } from "./utils";
 export class Logger implements ILogger {
   private readonly isEnabled: boolean;
 
-  private readonly instance: ILogger;
-
   private readonly level: LogLevel;
 
   constructor(
     private readonly namespace: string,
     private readonly envKey: string,
-    instance?: ILogger
+    private readonly instance?: ILogger
   ) {
     const { level, isEnabled } = this.parseNamespace();
 
     this.isEnabled = isEnabled;
     this.level = level;
-    this.instance = instance ?? console;
   }
 
   public debug(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
-      this.instance.debug(format(this.namespace, LogLevel.DEBUG, msg, ...meta));
+      if (this.instance) {
+        this.instance.debug(msg, ...meta);
+      } else {
+        console.debug(format(this.namespace, LogLevel.DEBUG, msg, ...meta));
+      }
     }
   }
 
   public info(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.INFO)) {
-      this.instance.info(format(this.namespace, LogLevel.INFO, msg, ...meta));
+      if (this.instance) {
+        this.instance.info(msg, ...meta);
+      } else {
+        console.debug(format(this.namespace, LogLevel.INFO, msg, ...meta));
+      }
     }
   }
 
   public warn(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.WARN)) {
-      this.instance.warn(format(this.namespace, LogLevel.WARN, msg, ...meta));
+      if (this.instance) {
+        this.instance.warn(msg, ...meta);
+      } else {
+        console.debug(format(this.namespace, LogLevel.WARN, msg, ...meta));
+      }
     }
   }
 
   public error(msg: string, ...meta: any[]): void {
     if (this.shouldLog(LogLevel.ERROR)) {
-      this.instance.error(format(this.namespace, LogLevel.ERROR, msg, ...meta));
+      if (this.instance) {
+        this.instance.error(msg, ...meta);
+      } else {
+        console.debug(format(this.namespace, LogLevel.ERROR, msg, ...meta));
+      }
     }
   }
 
