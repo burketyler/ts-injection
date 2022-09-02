@@ -1,3 +1,7 @@
+---
+## title: ts-injection
+---
+
 import Badges from "../components/Badges";
 
 <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
@@ -7,8 +11,39 @@ import Badges from "../components/Badges";
 <Badges />
 
 ts-injection is an annotation based dependency injection framework written in Typescript for NodeJS apps. It enables building
-applications that have loosely coupled components, resulting in:
+applications that have loosely coupled components.
 
-- Easy to read code.
-- Reduction in boilerplate.
-- Enhanced developer experience.
+## Show me some code
+
+```typescript
+@Injectable()
+class ArnyService {
+  public getQuote(): string {
+    return "Get to the choppa!";
+  }
+}
+
+@Injectable()
+class ArnyApp {
+  @Autowire(ArnyService)
+  private service!: ArnyService;
+
+  public getQuote(): string {
+    return this.service.getQuote();
+  }
+}
+
+const container = new InjectionContainer();
+
+function main(): void {
+  const app = container.resolve(ArnyApp);
+
+  console.log(handler.getQuote());
+}
+```
+
+## Features
+
+- 🌾 Field injection
+- 🔨 Constructor injection
+- 🔢 Environment variable parsing

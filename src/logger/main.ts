@@ -3,7 +3,7 @@
 import { LogLevel } from "./types";
 import { format, parseLogLvl } from "./utils";
 
-export class Logger {
+export class Loxgger {
   private readonly isEnabled: boolean;
 
   private readonly level: LogLevel;

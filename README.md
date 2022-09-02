@@ -1,18 +1,14 @@
 <p align="center">
-<img width="200px" src="https://content.tylerburke.dev/images/ts-injection-logo.png" />
+    <img width="200px" src="https://content.tylerburke.dev/images/ts-injection-logo.png" />
 </p>
 
-<a href="https://www.npmjs.com/package/ts-injection"><img src="https://img.shields.io/npm/v/ts-injection.svg"></a>
+<a href="https://www.npmjs.com/package/ts-injection"><img src="https://img.shields.io/npm/v/ts-injection.svg"/></a>
 <a href="https://bundlephobia.com/result?p=ts-injection"><img src="https://img.shields.io/bundlephobia/minzip/ts-injection.svg"/></a>
-<img src="https://img.shields.io/badge/license-MIT-blue.svg">
-<img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
+<img src="https://img.shields.io/badge/license-MIT-blue.svg"/>
+<img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"/>
 
 ts-injection is an annotation based dependency injection framework written in Typescript for NodeJS apps. It enables building
-applications that have loosely coupled components, resulting in:
-
-- Easy to read code.
-- Reduction in boilerplate.
-- Enhanced developer experience.
+applications that have loosely coupled components.
 
 ## Show me some code
 
@@ -25,7 +21,7 @@ class ArnyService {
 }
 
 @Injectable()
-class ArnyQuotesHandler {
+class ArnyApp {
   @Autowire(ArnyService)
   private service!: ArnyService;
 
@@ -36,9 +32,17 @@ class ArnyQuotesHandler {
 
 const container = new InjectionContainer();
 
-const handler = container.resolve(ArnyQuotesHandler);
-
-console.log(handler.getQuote());
+function main(): void {
+  const app = container.resolve(ArnyApp);
+  
+  console.log(handler.getQuote());
+}
 ```
+
+## Features
+
+- 🌾 Field injection
+- 🔨 Constructor injection
+- 🔢 Environment variable parsing
 
 <a href="https://burketyler.github.io/ts-injection/docs/usage"><p align="center" style="font-size: 25px">View full documentation</p></a>
