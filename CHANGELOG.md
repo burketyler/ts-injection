@@ -1,3 +1,10 @@
+## [3.1.2](https://github.com/burketyler/ts-injection/compare/v3.1.1...v3.1.2) (2022-09-02)
+
+
+### Bug Fixes
+
+* add overridable logger instance ([8b50779](https://github.com/burketyler/ts-injection/commit/8b507799f9a513622e963e7f56348c3488462a29))
+
 ## [3.1.1](https://github.com/burketyler/ts-injection/compare/v3.1.0...v3.1.1) (2022-09-02)
 
 
