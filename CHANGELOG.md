@@ -1,3 +1,10 @@
+## [3.1.3](https://github.com/burketyler/ts-injection/compare/v3.1.2...v3.1.3) (2022-09-02)
+
+
+### Bug Fixes
+
+* incorrect message string mapping on custom logger ([3155ffe](https://github.com/burketyler/ts-injection/commit/3155ffe098632bc9560c81fc677a9d019d1d5b88))
+
 ## [3.1.2](https://github.com/burketyler/ts-injection/compare/v3.1.1...v3.1.2) (2022-09-02)
 
 
