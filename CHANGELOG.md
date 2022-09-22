@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/burketyler/ts-injection/compare/v3.1.3...v3.2.0) (2022-09-22)
+
+
+### Features
+
+* **InjectionContainer:** add deregister method ([bfa9d63](https://github.com/burketyler/ts-injection/commit/bfa9d6324db49d52cc8b2583ffbf7ad71601cd6e))
+
 ## [3.1.3](https://github.com/burketyler/ts-injection/compare/v3.1.2...v3.1.3) (2022-09-02)
 
 
