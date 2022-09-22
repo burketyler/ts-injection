@@ -131,6 +131,26 @@ export class InjectionContainer {
     }
   }
 
+  public deRegister<InjectableType extends Newable>(
+    _class: InjectableType
+  ): Throwable<InjectionError, void>;
+  public deRegister(token: string): Throwable<InjectionError, void>;
+  public deRegister<InjectableType>(
+    classOrToken: InjectableType | string
+  ): Throwable<InjectionError, void> {
+    try {
+      return success(
+        isNewable(classOrToken)
+          ? this.deRegisterClass(classOrToken)
+          : this.deRegisterObject(classOrToken as string)
+      );
+    } catch (error) {
+      this.logger.error("Error de-registering injectable.", error);
+
+      return fail(error);
+    }
+  }
+
   public resolve<InjectableType>(token: string): InjectableType;
   public resolve<ClassType extends Newable>(
     ctor: ClassType
@@ -175,6 +195,12 @@ export class InjectionContainer {
     return item;
   }
 
+  private deRegisterObject(token: string): void {
+    this.logger.info(`De-registering object with token: ${token}`);
+
+    this.repo.removeItem(token);
+  }
+
   private registerClass(
     newable: Newable,
     token: string | undefined,
@@ -197,6 +223,20 @@ export class InjectionContainer {
     this.logger.debug(`Injectable registered with token: ${item.token}.`);
 
     return item;
+  }
+
+  private deRegisterClass(newable: Newable): void {
+    let Class: ClassDef;
+
+    if (isClassDef(newable)) {
+      Class = newable;
+    } else {
+      Class = (newable as Newable).constructor as ClassDef;
+    }
+
+    this.logger.debug(`De-registering class: ${Class.name}.`);
+
+    this.repo.removeItem(Class);
   }
 
   private instantiateClass<ClassType extends ClassDef>(

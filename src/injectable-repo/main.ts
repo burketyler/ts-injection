@@ -101,6 +101,17 @@ export class InjectableRepo {
     }) as InjectableItem<ItemType>;
   }
 
+  public removeItem(tokenOrCtor: string | Newable): void {
+    const existingItem = this.getItem(tokenOrCtor);
+
+    if (existingItem) {
+      this.logger.info("Removing injectable from context.");
+      this.items.splice(this.items.indexOf(existingItem), 1);
+    } else {
+      this.logger.debug("No instance found, nothing to remove.");
+    }
+  }
+
   private addItem(item: InjectableItem<unknown>): InjectableItem<unknown> {
     this.items.push(item);
 

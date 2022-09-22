@@ -45,7 +45,7 @@ describe("Injection Context tests", () => {
       jest.resetAllMocks();
     });
 
-    it("Should throw when class is resolved", () => {
+    it("Should throw when class is not resolved", () => {
       expect(() => ctx.resolve(ClassThree)).toThrowError(
         expect.objectContaining({
           message: expect.stringMatching(/.*not found.*/),
@@ -58,7 +58,7 @@ describe("Injection Context tests", () => {
     let ctx: InjectionContainer;
 
     beforeAll(() => {
-      ctx = new InjectionContainer("Ctx1", {
+      ctx = new InjectionContainer("Ctx2", {
         isManualInit: true,
         shouldThrowOnNotFound: false,
       });
@@ -108,7 +108,7 @@ describe("Injection Context tests", () => {
     let ctx: InjectionContainer;
 
     beforeAll(() => {
-      ctx = new InjectionContainer("Ctx1", { shouldThrowOnNotFound: false });
+      ctx = new InjectionContainer("Ctx3", { shouldThrowOnNotFound: false });
     });
 
     it("Should instantiate all classes", () => {
@@ -143,6 +143,28 @@ describe("Injection Context tests", () => {
       ctx.initialize();
 
       expect(ctx.repo["items"].length).toEqual(numItems);
+    });
+  });
+
+  describe("When injectable de-registered", () => {
+    let ctx: InjectionContainer;
+
+    beforeAll(() => {
+      ctx = new InjectionContainer("Ctx4");
+    });
+
+    it("Should throw on resolve", () => {
+      ctx.register(ClassThree).successOrThrow();
+      ctx.register(objectOne, objectOne.token).successOrThrow();
+
+      expect(() => ctx.resolve(ClassThree)).not.toThrow();
+      expect(() => ctx.resolve(objectOne.token)).not.toThrow();
+
+      ctx.deRegister(ClassThree).successOrThrow();
+      ctx.deRegister(objectOne.token).successOrThrow();
+
+      expect(() => ctx.resolve(ClassThree)).toThrow();
+      expect(() => ctx.resolve(objectOne.token)).toThrow();
     });
   });
 });
