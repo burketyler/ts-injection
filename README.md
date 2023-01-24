@@ -35,14 +35,14 @@ const container = new InjectionContainer();
 function main(): void {
   const app = container.resolve(ArnyApp);
   
-  console.log(handler.getQuote());
+  console.log(app.getQuote());
 }
 ```
 
 ## Features
 
-- 🌾 Field injection
-- 🔨 Constructor injection
-- 🔢 Environment variable parsing
+- 🌾 [Field injection](https://burketyler.github.io/ts-injection/docs/usage#-field-injection)
+- 🔨 [Constructor injection](https://burketyler.github.io/ts-injection/docs/usage#-constructor-injection)
+- 🔢 [Environment variable parsing](https://burketyler.github.io/ts-injection/docs/usage#environment-variables)
 
-<a href="https://burketyler.github.io/ts-injection/docs/usage"><p align="center" style="font-size: 25px">View full documentation</p></a>
+## [View full documentation](https://burketyler.github.io/ts-injection/docs/setup)

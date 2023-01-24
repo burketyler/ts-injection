@@ -38,7 +38,7 @@ const container = new InjectionContainer();
 function main(): void {
   const app = container.resolve(ArnyApp);
 
-  console.log(handler.getQuote());
+  console.log(app.getQuote());
 }
 ```
 
